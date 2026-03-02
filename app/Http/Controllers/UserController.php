@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -14,7 +15,11 @@ class UserController extends Controller
     public function index()
     {
         //
-        return view('backend.users.index');
+        $users = User::query()
+            ->with('role') // eager loading: voorkomt N+1 queries bij $user->role
+        ->latest() // ORDER BY created_at DESC
+        ->paginate(10); // 10 per pagina
+        return view('backend.users.index', compact('users'));
     }
 
     /**
