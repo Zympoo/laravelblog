@@ -126,21 +126,20 @@
                                 <td>{{ $user->role?->name ?? '-' }}</td>
                                 <td>
                                     @if($user->is_active)
-                                        <span class="badge bgsuccess">active</span>
+                                        <span class="badge bg-success">active</span>
                                     @else
-                                        <span class="badge bgsecondary">inactive</span>
+                                        <span class="badge bg-secondary">inactive</span>
                                     @endif
                                 </td>
                                 <td>{{ optional($user->created_at)->format('Y-m-d') }}</td>
                                 <td class="text-end">
-                                    <a href="#" class="btn btn-sm btnoutline-secondary">Edit</a>
-                                    <a href="#" class="btn btn-sm btnoutline-danger">Delete</a>
+                                    <a href="#" class="btn btn-sm btn-outline-secondary">Edit</a>
+                                    <a href="#" class="btn btn-sm btn-outline-danger">Delete</a>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center text-muted
-                        py-4">
+                                <td colspan="7" class="text-center text-muted py-4">
                                     No users found. Try clearing filters.
                                 </td>
                             </tr>
