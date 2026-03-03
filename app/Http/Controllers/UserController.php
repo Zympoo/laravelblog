@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UserIndexRequest;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -12,14 +14,30 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(UserIndexRequest $request)
     {
-        //
+        $filters = $request->defaults();
+
         $users = User::query()
-            ->with('role') // eager loading: voorkomt N+1 queries bij $user->role
-        ->latest() // ORDER BY created_at DESC
-        ->paginate(10); // 10 per pagina
-        return view('backend.users.index', compact('users'));
+            ->with('role')
+            ->search($filters['q'])
+            ->roleFilter($filters['role'])
+            ->statusFilter($filters['status'])
+            ->verifiedFilter($filters['verified'])
+            ->sortBySafe($filters['sort'], $filters['dir'])
+            ->paginate($filters['per_page'])
+            ->withQueryString();
+
+        $roles = Role::query()
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        return view('backend.users.index', [
+            'users' => $users,
+            'roles' => $roles,
+            'filters' => $filters,
+            'perPageAllowed' => [10, 25, 50, 100],
+        ]);
     }
 
     /**

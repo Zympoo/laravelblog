@@ -6,6 +6,8 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -72,5 +74,74 @@ class User extends Authenticatable
     public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class);
+    }
+
+    #[Scope]
+    protected function search(Builder $query, string $q): Builder
+    {
+        $q = trim($q);
+        if ($q === '') {
+            return $query;
+        }
+
+        return $query->where(function (Builder $sub) use ($q) {
+            $sub->where('name', 'like', "%{$q}%")
+                ->orWhere('email', 'like', "%{$q}%");
+        });
+    }
+
+    #[Scope]
+    protected function roleFilter(Builder $query, ?int $roleId): Builder
+    {
+        if (! $roleId) {
+            return $query;
+        }
+
+        return $query->where('role_id', $roleId);
+    }
+
+    #[Scope]
+    protected function statusFilter(Builder $query, ?string $status): Builder
+    {
+        if (! $status) {
+            return $query;
+        }
+
+        return match ($status) {
+            'active' => $query->where('is_active', 1),
+            'inactive' => $query->where('is_active', 0),
+            default => $query,
+        };
+    }
+
+    #[Scope]
+    protected function verifiedFilter(Builder $query, ?string $verified): Builder
+    {
+        if (! $verified) {
+            return $query;
+        }
+
+        return match ($verified) {
+            'yes' => $query->whereNotNull('email_verified_at'),
+            'no' => $query->whereNull('email_verified_at'),
+            default => $query,
+        };
+    }
+
+    /**
+     * Safe sorting.
+     * Ook al doet de FormRequest al whitelisting, dit is extra bescherming
+     * als deze scope later buiten deze pagina gebruikt wordt.
+     */
+    #[Scope]
+    protected function sortBySafe(Builder $query, string $sort, string $dir): Builder
+    {
+        $allowed = ['id', 'name', 'email', 'created_at', 'is_active'];
+        if (! in_array($sort, $allowed, true)) {
+            $sort = 'created_at';
+        }
+        $dir = strtolower($dir) === 'asc' ? 'asc' : 'desc';
+
+        return $query->orderBy($sort, $dir);
     }
 }
