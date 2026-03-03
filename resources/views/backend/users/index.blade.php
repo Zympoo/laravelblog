@@ -77,16 +77,17 @@
         {{-- Sort helpers --}}
         @php
             $sortUrl = function (string $col) use ($filters) {
-            $newDir = ($filters['sort'] === $col && $filters['dir'] === 'asc') ? 'desc' : 'asc';
-            return route('backend.users.index', [
-                'q' => $filters['q'],
-                'role' => $filters['role'],
-                'status' => $filters['status'],
-                'verified' => $filters['verified'],
-                'per_page' => $filters['per_page'],
-                'sort' => $col,
-                'dir' => $newDir,
-            ]);
+                $newDir = ($filters['sort'] === $col && $filters['dir'] === 'asc') ? 'desc' : 'asc';
+
+                return route('backend.users.index', [
+                    'q' => $filters['q'],
+                    'role' => $filters['role'],
+                    'status' => $filters['status'],
+                    'verified' => $filters['verified'],
+                    'per_page' => $filters['per_page'],
+                    'sort' => $col,
+                    'dir' => $newDir,
+                ]);
             };
             $sortIcon = function (string $col) use ($filters) {
             if ($filters['sort'] !== $col) return '';
