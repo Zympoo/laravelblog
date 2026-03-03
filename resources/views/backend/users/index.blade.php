@@ -34,20 +34,16 @@
                     <label class="form-label mb-1">Status</label>
                     <select name="status" class="form-select">
                         <option value="">All</option>
-                        <option value="active" @selected($filters['status']
-=== 'active')>Active</option>
-                        <option value="inactive" @selected($filters['status']
-=== 'inactive')>Inactive</option>
+                        <option value="active" @selected($filters['status'] === 'active')>Active</option>
+                        <option value="inactive" @selected($filters['status'] === 'inactive')>Inactive</option>
                     </select>
                 </div>
                 <div class="col-12 col-md-2">
                     <label class="form-label mb-1">Verified</label>
                     <select name="verified" class="form-select">
                         <option value="">All</option>
-                        <option value="yes" @selected($filters['verified']
-=== 'yes')>Yes</option>
-                        <option value="no" @selected($filters['verified'] ===
-'no')>No</option>
+                        <option value="yes" @selected($filters['verified'] === 'yes')>Yes</option>
+                        <option value="no" @selected($filters['verified'] === 'no')>No</option>
                     </select>
                 </div>
                 <div class="col-12 col-md-2">
@@ -81,16 +77,15 @@
         {{-- Sort helpers --}}
         @php
             $sortUrl = function (string $col) use ($filters) {
-            $newDir = ($filters['sort'] === $col && $filters['dir'] ===
-            'asc') ? 'desc' : 'asc';
+            $newDir = ($filters['sort'] === $col && $filters['dir'] === 'asc') ? 'desc' : 'asc';
             return route('backend.users.index', [
-            'q' => $filters['q'],
-            'role' => $filters['role'],
-            'status' => $filters['status'],
-            'verified' => $filters['verified'],
-            'per_page' => $filters['per_page'],
-            'sort' => $col,
-            'dir' => $newDir,
+                'q' => $filters['q'],
+                'role' => $filters['role'],
+                'status' => $filters['status'],
+                'verified' => $filters['verified'],
+                'per_page' => $filters['per_page'],
+                'sort' => $col,
+                'dir' => $newDir,
             ]);
             };
             $sortIcon = function (string $col) use ($filters) {
@@ -102,8 +97,7 @@
             <div class="card-header">
                 <i class="fas fa-table me-1"></i>
                 Users lijst
-                <span class="text-muted ms-2">({{ $users->total() }}
-totaal)</span>
+                <span class="text-muted ms-2">({{ $users->total() }} totaal)</span>
             </div>
             <div class="table-responsive">
                 <table class="table table-bordered table-striped mb-0">
@@ -117,53 +111,45 @@ totaal)</span>
                                href="{{ $sortUrl('email') }}">Email{!! $sortIcon('email') !!}</a></th>
                         <th>Role</th>
                         <th><a class="text-decoration-none"
-                               href="{{ $sortUrl('is_active') }}">Status{!!
-$sortIcon('is_active') !!}</a></th>
+                               href="{{ $sortUrl('is_active') }}">Status{!! $sortIcon('is_active') !!}</a></th>
                         <th><a class="text-decoration-none"
-                               href="{{ $sortUrl('created_at') }}">Created{!!
-$sortIcon('created_at') !!}</a></th>
+                               href="{{ $sortUrl('created_at') }}">Created{!! $sortIcon('created_at') !!}</a></th>
                         <th class="text-end">Actions</th>
                     </tr>
                     </thead>
                     <tbody>
-@forelse($users as $user)
-    <tr>
-        <td>{{ $user->id }}</td>
-        <td>{{ $user->name }}</td>
-        <td>{{ $user->email }}</td>
-        <td>{{ $user->role?->name ?? '-' }}</td>
-        <td>
-            @if($user->is_active)
-                <span class="badge bgsuccess">active</span>
-            @else
-                <span class="badge bgsecondary">inactive</span>
-            @endif
-        </td>
-        <td>{{ optional($user->created_at)->format('Y-m-d') }}</td>
-        <td class="text-end">
-            <a href="#" class="btn btn-sm btnoutline-secondary">Edit</a>
-            <a href="#" class="btn btn-sm btnoutline-danger">Delete</a>
-        </td>
-    </tr>
-@empty
-    <tr>
-        <td colspan="7" class="text-center text-muted
-py-4">
-            No users found. Try clearing filters.
-        </td>
-    </tr>
-@endforelse
+                        @forelse($users as $user)
+                            <tr>
+                                <td>{{ $user->id }}</td>
+                                <td>{{ $user->name }}</td>
+                                <td>{{ $user->email }}</td>
+                                <td>{{ $user->role?->name ?? '-' }}</td>
+                                <td>
+                                    @if($user->is_active)
+                                        <span class="badge bgsuccess">active</span>
+                                    @else
+                                        <span class="badge bgsecondary">inactive</span>
+                                    @endif
+                                </td>
+                                <td>{{ optional($user->created_at)->format('Y-m-d') }}</td>
+                                <td class="text-end">
+                                    <a href="#" class="btn btn-sm btnoutline-secondary">Edit</a>
+                                    <a href="#" class="btn btn-sm btnoutline-danger">Delete</a>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="text-center text-muted
+                        py-4">
+                                    No users found. Try clearing filters.
+                                </td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
-            <div class="d-flex align-items-center justify-content-between mt3">
-                <div class="small text-muted">
-                    Showing {{ $users->firstItem() ?? 0 }} to
-                    {{ $users->lastItem() ?? 0 }} of {{ $users->total() }}
-                </div>
-                <div>
+            <div class="d-flex align-items-center justify-content-between mt-3">
                     {{ $users->links() }}
-                </div>
             </div>
         </x-backend.card>
     </x-backend.page-header>
