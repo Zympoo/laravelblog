@@ -67,7 +67,7 @@
                        href="{{ route('backend.users.index') }}">
                         Clear
                     </a>
-                    <a href="#" class="btn btn-success ms-auto">
+                    <a href="{{ route('backend.users.create') }}" class="btn btn-success ms-auto">
                         <i class="fas fa-plus me-1"></i>
                         New user
                     </a>
