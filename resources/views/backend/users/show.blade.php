@@ -1,0 +1,75 @@
+<x-backend.shell title="User details">
+    <x-backend.page-header title="User details">
+        <x-backend.card>
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <div>
+                    <i class="fas fa-id-card me-1"></i>
+                    {{ $user->name }}
+                </div>
+                <div class="d-flex gap-2">
+                    {{-- Naar edit --}}
+                    <a href="{{ route('backend.users.edit', $user) }}"
+                       class="btn btn-sm btn-outline-secondary">
+                        Edit
+                    </a>
+                    {{-- Terug naar index --}}
+                    <a href="{{ route('backend.users.index') }}" class="btn btn-sm btn-outline-secondary">
+                        Back
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                {{-- Read-only overzicht, Bootstrap table --}}
+                <table class="table table-bordered mb-0">
+                    <tbody>
+                    <tr>
+                        <th style="width: 220px;">ID</th>
+                        <td>{{ $user->id }}</td>
+                    </tr>
+                    <tr>
+                        <th>Name</th>
+                        <td>{{ $user->name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Email</th>
+                        <td>{{ $user->email }}</td>
+                    </tr>
+                    <tr>
+                        <th>Role</th>
+                        <td>{{ $user->role?->name ?? '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Status</th>
+                        <td>
+                            @if($user->is_active)
+                                <span class="badge bgsuccess">active</span>
+                            @else
+                                <span class="badge bgsecondary">inactive</span>
+                            @endif
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Verified</th>
+                        <td>
+                            @if($user->email_verified_at)
+                                <span class="badge bg-info">yes</span>
+                                <span class="text-muted ms2">{{ $user->email_verified_at->format('Y-m-d H:i') }}</span>
+                            @else
+                                <span class="badge bg-warning textdark">no</span>
+                            @endif
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Created at</th>
+                        <td>{{ optional($user->created_at)->format('Y-m-d H:i') }}</td>
+                    </tr>
+                    <tr>
+                        <th>Updated at</th>
+                        <td>{{ optional($user->updated_at)->format('Y-m-d H:i') }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </x-backend.card>
+    </x-backend.page-header>
+</x-backend.shell>
