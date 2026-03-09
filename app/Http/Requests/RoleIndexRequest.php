@@ -8,7 +8,7 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class UserIndexRequest extends FormRequest
+class RoleIndexRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,20 +27,10 @@ class UserIndexRequest extends FormRequest
     {
         return [
             'q' => ['nullable', 'string', 'max:100'],
-
-            // Filters
-            'role' => ['nullable', 'integer', 'min:1'],
-            'status' => ['nullable', Rule::in(['active', 'inactive'])],
-            'verified' => ['nullable', Rule::in(['yes', 'no'])],
             'trashed' => ['nullable', Rule::in(['with', 'only'])],
-
-            // Sorting
-            'sort' => ['nullable', Rule::in(['id', 'name', 'email', 'created_at', 'is_active'])],
+            'sort' => ['nullable', Rule::in(['id', 'name', 'created_at'])],
             'dir' => ['nullable', Rule::in(['asc', 'desc'])],
-
-            // Per page
             'per_page' => ['nullable', Rule::in([10, 25, 50, 100])],
-
         ];
     }
 
@@ -50,9 +40,6 @@ class UserIndexRequest extends FormRequest
 
         return [
             'q' => (string) ($v['q'] ?? ''),
-            'role' => $v['role'] ?? null,
-            'status' => $v['status'] ?? null,
-            'verified' => $v['verified'] ?? null,
             'trashed' => $v['trashed'] ?? null,
             'sort' => (string) ($v['sort'] ?? 'created_at'),
             'dir' => (string) ($v['dir'] ?? 'desc'),

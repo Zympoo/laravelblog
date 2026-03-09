@@ -47,6 +47,14 @@
                     </select>
                 </div>
                 <div class="col-12 col-md-2">
+                    <label class="form-label mb-1">Deleted</label>
+                    <select name="trashed" class="form-select">
+                        <option value="">Active only</option>
+                        <option value="with" @selected($filters['trashed'] === 'with')>Active + deleted</option>
+                        <option value="only" @selected($filters['trashed'] === 'only')>Deleted only</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-2">
                     <label class="form-label mb-1">Per page</label>
                     <select name="per_page" class="form-select">
                         @foreach($perPageAllowed as $n)
@@ -84,6 +92,7 @@
                     'role' => $filters['role'],
                     'status' => $filters['status'],
                     'verified' => $filters['verified'],
+                    'trashed' => $filters['trashed'],
                     'per_page' => $filters['per_page'],
                     'sort' => $col,
                     'dir' => $newDir,
@@ -131,12 +140,64 @@
                                     @else
                                         <span class="badge bg-secondary">inactive</span>
                                     @endif
+
+                                    @if($user->deleted_at)
+                                            <span class="badge bg-danger ms-1">deleted</span>
+                                    @endif
                                 </td>
                                 <td>{{ optional($user->created_at)->format('Y-m-d') }}</td>
                                 <td class="text-end">
-                                    <a href="{{ route('backend.users.show', $user) }}" class="btn btn-sm btnoutline-primary">Show</a>
-                                    <a href="{{ route('backend.users.edit', $user) }}" class="btn btn-sm btnoutline-secondary">Edit</a>
-                                    <a href="#" class="btn btn-sm btn-outline-danger">Delete</a>
+                                    <a href="{{ route('backend.users.show', $user->id) }}" class="btn btn-sm btn-outline-primary">Show</a>
+
+                                    @if(! $user->deleted_at)
+
+                                        <a href="{{ route('backend.users.edit', $user) }}"
+                                           class="btn btn-sm btn-outline-secondary">
+                                            Edit
+                                        </a>
+
+                                        <form method="POST"
+                                              action="{{ route('backend.users.destroy', $user) }}"
+                                              class="d-inline">
+                                            @csrf
+                                            @method('DELETE')
+
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-outline-danger"
+                                                    onclick="return confirm('Are you sure you want to delete this user?')">
+                                                Delete
+                                            </button>
+                                        </form>
+
+                                    @else
+
+                                        <form method="POST"
+                                              action="{{ route('backend.users.restore', $user->id) }}"
+                                              class="d-inline">
+                                            @csrf
+                                            @method('PATCH')
+
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-success"
+                                                    onclick="return confirm('Restore this user?')">
+                                                Restore
+                                            </button>
+                                        </form>
+
+                                        <form method="POST"
+                                              action="{{ route('backend.users.forceDelete', $user->id) }}"
+                                              class="d-inline">
+                                            @csrf
+                                            @method('DELETE')
+
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-danger"
+                                                    onclick="return confirm('Permanently delete this user? This cannot be undone.')">
+                                                Force delete
+                                            </button>
+                                        </form>
+
+                                    @endif
                                 </td>
                             </tr>
                         @empty

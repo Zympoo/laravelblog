@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
@@ -19,6 +20,8 @@ class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, TwoFactorAuthenticatable;
+
+    use SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -58,6 +61,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_active' => 'boolean',
+            'deleted_at' => 'datetime',
         ];
     }
 
@@ -126,6 +130,20 @@ class User extends Authenticatable
         return match ($verified) {
             'yes' => $query->whereNotNull('email_verified_at'),
             'no' => $query->whereNull('email_verified_at'),
+            default => $query,
+        };
+    }
+
+    #[Scope]
+    protected function trashedFilter(Builder $query, ?string $trashed): Builder
+    {
+        if (! $trashed) {
+            return $query;
+        }
+
+        return match ($trashed) {
+            'with' => $query->withTrashed(),
+            'only' => $query->onlyTrashed(),
             default => $query,
         };
     }

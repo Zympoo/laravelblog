@@ -7,21 +7,27 @@ use Illuminate\Support\Facades\DB;
 
 class RoleSeeder extends Seeder
 {
-    public function run()
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
     {
         DB::table('roles')->insert([
             [
                 'name' => 'admin',
+                'description' => 'Administrator with full backend access.',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
                 'name' => 'author',
+                'description' => 'User who can create and manage own posts.',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
                 'name' => 'subscriber',
+                'description' => 'Basic user with limited permissions.',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],

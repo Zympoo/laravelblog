@@ -67,6 +67,10 @@
                         <th>Updated at</th>
                         <td>{{ optional($user->updated_at)->format('Y-m-d H:i') }}</td>
                     </tr>
+                    <tr>
+                        <th>Deleted at</th>
+                        <td>{{ optional($user->deleted_at)->format('Y-m-d H:i') ?? '-' }}</td>
+                    </tr>
                     </tbody>
                 </table>
             </div>

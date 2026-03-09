@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignIdFor(\App\Models\Role::class) // Foreign key naar roles tabel
                 ->nullable()
                 ->constrained() // Voegt een foreign key constraint toe
-                ->cascadeOnDelete(); // Verwijdert user als de rol wordt verwijderd
+                ->nullOnDelete(); // Verwijdert user als de rol wordt verwijderd
             $table->boolean('is_active')->default(0);
             $table->string('name');
             $table->string('email')->unique();
@@ -25,6 +25,14 @@ return new class extends Migration
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
+
+            /**
+             * Soft deletes:
+             * deleted_at wordt een nullable datetime kolom.
+             * Een "delete" verwijdert de rij dan niet fysiek,
+             * maar vult deleted_at in.
+             */
+            $table->softDeletes();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

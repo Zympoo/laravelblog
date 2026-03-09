@@ -28,6 +28,7 @@ class UserController extends Controller
             ->roleFilter($filters['role'])
             ->statusFilter($filters['status'])
             ->verifiedFilter($filters['verified'])
+            ->trashedFilter($filters['trashed'])
             ->sortBySafe($filters['sort'], $filters['dir'])
             ->paginate($filters['per_page'])
             ->withQueryString();
@@ -119,6 +120,7 @@ class UserController extends Controller
          * We eager load role om N+1 te vermijden als view role gebruikt.
          */
         $user->load('role');
+
         return view('backend.users.show', [
             'user' => $user,
         ]);
@@ -213,8 +215,61 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id): void
+    public function destroy(User $user)
     {
-        //
+        try {
+            /**
+             * Soft delete:
+             * de rij blijft bestaan,
+             * maar deleted_at wordt ingevuld.
+             */
+            $user->delete();
+
+            return redirect()
+                ->route('backend.users.index')
+                ->with('success', "User '{$user->name}' deleted successfully.");
+        } catch (Throwable) {
+            return back()
+                ->with('error', 'User could not be deleted.');
+        }
+    }
+
+    public function restore(int $id)
+    {
+        try {
+            /**
+             * withTrashed() zorgt ervoor dat ook soft deleted records
+             * opzoekbaar zijn.
+             */
+            $user = User::withTrashed()->findOrFail($id);
+            $user->restore();
+
+            return redirect()
+                ->route('backend.users.index')
+                ->with('success', "User '{$user->name}' restored successfully.");
+        } catch (Throwable) {
+            return back()
+                ->with('error', 'User could not be restored.');
+        }
+    }
+
+    public function forceDelete(int $id)
+    {
+        try {
+            /**
+             * forceDelete() verwijdert de rij definitief uit de database.
+             * Dit gebruik je alleen op records die al soft deleted zijn.
+             */
+            $user = User::withTrashed()->findOrFail($id);
+            $name = $user->name;
+            $user->forceDelete();
+
+            return redirect()
+                ->route('backend.users.index')
+                ->with('success', "User '{$name}' permanently deleted.");
+        } catch (Throwable) {
+            return back()
+                ->with('error', 'User could not be permanently deleted.');
+        }
     }
 }
