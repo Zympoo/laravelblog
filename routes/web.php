@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -27,6 +28,14 @@ Route::middleware(['auth', 'verified'])
 
         Route::delete('roles/{id}/force-delete', [RoleController::class, 'forceDelete'])
             ->name('roles.forceDelete');
+
+        Route::resource('categories', CategoryController::class)->withTrashed();
+
+        Route::patch('categories/{id}/restore', [CategoryController::class, 'restore'])
+            ->name('categories.restore');
+
+        Route::delete('categories/{id}/force-delete', [CategoryController::class, 'forceDelete'])
+            ->name('categories.forceDelete');
     });
 
 require __DIR__.'/settings.php';
