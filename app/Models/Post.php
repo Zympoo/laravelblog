@@ -1,0 +1,185 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
+
+class Post extends Model
+{
+    use SoftDeletes;
+
+    /**
+     * Velden die via mass assignment ingevuld mogen worden.
+     */
+    protected $fillable = [
+        'user_id',
+        'title',
+        'slug',
+        'excerpt',
+        'body',
+        'is_published',
+        'published_at',
+    ];
+
+    /**
+     * Type casting voor correcte PHP-types.
+     */
+    protected function casts(): array
+    {
+        return [
+            'is_published' => 'boolean',
+            'published_at' => 'datetime',
+        ];
+    }
+
+    /**
+     * We willen slug-based route model binding:
+     * /backend/posts/mijn-slug
+     * in plaats van
+     * /backend/posts/1
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
+    /**
+     * Relatie: één post hoort bij één auteur.
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Relatie: één post kan meerdere categories hebben.
+     */
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class)->withTimestamps();
+    }
+
+    /**
+     * Automatische slug-generatie bij create/update.
+     *
+     * Let op:
+     * - als de gebruiker zelf een slug invult, laten we die staan
+     * - als slug leeg is, maken we hem op basis van de title
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (Post $post) {
+            if (blank($post->slug) && filled($post->title)) {
+                $post->slug = Str::slug($post->title);
+            }
+        });
+        static::updating(function (Post $post) {
+            if ($post->isDirty('title') && blank($post->slug)) {
+                $post->slug = Str::slug($post->title);
+            }
+        });
+    }
+
+    /**
+     * Zoekscope voor vrije tekst.
+     */
+    #[Scope]
+    protected function search(Builder $query, string $q): Builder
+    {
+        $q = trim($q);
+        if ($q === '') {
+            return $query;
+        }
+
+        return $query->where(function (Builder $sub) use ($q) {
+            $sub->where('title', 'like', "%{$q}%")
+                ->orWhere('slug', 'like', "%{$q}%")
+                ->orWhere('excerpt', 'like', "%{$q}%")
+                ->orWhere('body', 'like', "%{$q}%");
+        });
+    }
+
+    /**
+     * Filter op auteur.
+     */
+    #[Scope]
+    protected function authorFilter(Builder $query, ?int $userId): Builder
+    {
+        if (! $userId) {
+            return $query;
+        }
+
+        return $query->where('user_id', $userId);
+    }
+
+    /**
+     * Filter op publicatiestatus.
+     */
+    #[Scope]
+    protected function statusFilter(Builder $query, ?string $status): Builder
+    {
+        if (! $status) {
+            return $query;
+        }
+
+        return match ($status) {
+            'published' => $query->where('is_published', true),
+            'draft' => $query->where('is_published', false),
+            default => $query,
+        };
+    }
+
+    /**
+     * Filter op category.
+     */
+    #[Scope]
+    protected function categoryFilter(Builder $query, ?int $categoryId): Builder
+    {
+        if (! $categoryId) {
+            return $query;
+        }
+
+        return $query->whereHas('categories', function (Builder $sub) use ($categoryId) {
+            $sub->where('categories.id', $categoryId);
+        });
+    }
+
+    /**
+     * Filter op soft deleted records.
+     */
+    #[Scope]
+    protected function trashedFilter(Builder $query, ?string $trashed): Builder
+    {
+        if (! $trashed) {
+            return $query;
+        }
+
+        return match ($trashed) {
+            'with' => $query->withTrashed(),
+            'only' => $query->onlyTrashed(),
+            default => $query,
+        };
+    }
+
+    /**
+     * Veilige sortering op whitelisted kolommen.
+     */
+    #[Scope]
+    protected function sortBySafe(Builder $query, string $sort, string $dir): Builder
+    {
+        $allowed = ['id', 'title', 'slug', 'created_at', 'published_at',
+            'is_published'];
+        if (! in_array($sort, $allowed, true)) {
+            $sort = 'created_at';
+        }
+        $dir = strtolower($dir) === 'asc' ? 'asc' : 'desc';
+
+        return $query->orderBy($sort, $dir);
+    }
+}

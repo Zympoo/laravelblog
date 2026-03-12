@@ -8,7 +8,6 @@ use App\Http\Requests\CategoryIndexRequest;
 use App\Http\Requests\CategoryStoreRequest;
 use App\Http\Requests\CategoryUpdateRequest;
 use App\Models\Category;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 
@@ -165,10 +164,10 @@ class CategoryController extends Controller
         try {
             $category = Category::withTrashed()->findOrFail($id);
 
-//            if ($category->posts()->exists()) {
-//                return back()
-//                    ->with('error', "Category '{$category->name}' has posts so it can't be deleted.");
-//            }
+            //            if ($category->posts()->exists()) {
+            //                return back()
+            //                    ->with('error', "Category '{$category->name}' has posts so it can't be deleted.");
+            //            }
 
             $name = $category->name;
 

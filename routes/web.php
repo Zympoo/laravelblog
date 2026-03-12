@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\PostController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -36,6 +37,14 @@ Route::middleware(['auth', 'verified'])
 
         Route::delete('categories/{id}/force-delete', [CategoryController::class, 'forceDelete'])
             ->name('categories.forceDelete');
+
+        Route::resource('posts', PostController::class)->withTrashed();
+
+        Route::patch('posts/{id}/restore', [PostController::class, 'restore'])
+            ->name('posts.restore');
+
+        Route::delete('posts/{id}/force-delete', [PostController::class, 'forceDelete'])
+            ->name('posts.forceDelete');
     });
 
 require __DIR__.'/settings.php';
