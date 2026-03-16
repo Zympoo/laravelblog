@@ -163,6 +163,7 @@
                             </a>
                         </th>
 
+                        <th>Thumbnail</th>
                         <th>Author</th>
                         <th>Categories</th>
 
@@ -200,6 +201,15 @@
 
                                 @if($post->deleted_at)
                                     <span class="badge bg-danger ms-1">deleted</span>
+                                @endif
+                            </td>
+
+                            <td>
+                                @if($post->media)
+                                    <img
+                                        src="{{ $post->media->url() }}"
+                                        style="width:80px"
+                                        class="img-thumbnail">
                                 @endif
                             </td>
 

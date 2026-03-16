@@ -160,6 +160,35 @@
         @enderror
     </div>
 
+    {{-- ========================= IMAGE ========================= --}}
+    <div class="col-12">
+        <label class="form-label">Profile image</label>
+        <input
+            type="file"
+            name="image"
+            class="form-control @error('image') is-invalid @enderror"
+            accept=".jpg,.jpeg,.png,.webp"
+        >
+        @error('image')
+        <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+        <div class="form-text">
+            Allowed formats: jpg, jpeg, png, webp (max 2MB)
+        </div>
+        @if($user?->media)
+            <div class="mt-3">
+                <div class="small text-muted mb-2">
+                    Current image
+                </div>
+                <img
+                    src="{{ $user->media->url() }}"
+                    class="img-thumbnail"
+                    style="max-width:160px;"
+                >
+            </div>
+        @endif
+    </div>
+
 
     {{-- ========================= ACTIONS ========================= --}}
     <div class="col-12 d-flex gap-2 mt-2">

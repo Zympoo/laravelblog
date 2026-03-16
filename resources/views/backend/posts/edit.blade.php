@@ -6,7 +6,8 @@
                 Edit: {{ $post->title }}
             </div>
             <div class="card-body">
-                <form method="POST" action="{{ route('backend.posts.update', $post) }}">
+                <form method="POST" action="{{ route('backend.posts.update', $post) }}"
+                      enctype="multipart/form-data">
                     @csrf
                     @method('PATCH')
                     @include('backend.posts.partials.form', [

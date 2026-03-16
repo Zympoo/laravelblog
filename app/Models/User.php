@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Services\MediaService;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -34,7 +36,6 @@ class User extends Authenticatable
         'password',
         'role_id', // Dit is de kolom die foreignIdFor aanmaakt
         'is_active',
-        'photo_id',
         'email_verified_at',
     ];
 
@@ -65,6 +66,17 @@ class User extends Authenticatable
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::forceDeleted(function ($user) {
+            if ($user->media) {
+                $mediaService = app(MediaService::class);
+
+                $mediaService->delete($user->media);
+            }
+        });
+    }
+
     /**
      * Get the user's initials
      */
@@ -85,6 +97,11 @@ class User extends Authenticatable
     public function posts()
     {
         return $this->hasMany(Post::class);
+    }
+
+    public function media(): MorphOne
+    {
+        return $this->morphOne(Media::class, 'mediable');
     }
 
     #[Scope]

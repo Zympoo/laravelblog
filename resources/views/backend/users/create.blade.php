@@ -12,7 +12,8 @@
                 @csrf is verplicht in Laravel voor beveiliging.
                 --}}
                 <form method="POST"
-                      action="{{ route('backend.users.store') }}">
+                      action="{{ route('backend.users.store') }}"
+                      enctype="multipart/form-data">
                     @csrf
                     {{--
                     Form partial in partials/:

@@ -65,6 +65,7 @@ class PostUpdateRequest extends FormRequest
             'published_at' => ['nullable', 'date'],
             'categories' => ['nullable', 'array'],
             'categories.*' => ['integer', Rule::exists('categories', 'id')],
+            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
         ];
     }
 }

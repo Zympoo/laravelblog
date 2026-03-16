@@ -154,6 +154,34 @@
         @enderror
     </div>
 
+    {{-- ========================= IMAGE ========================= --}}
+    <div class="col-12">
+        <label class="form-label">Featured image</label>
+        <input
+            type="file"
+            name="image"
+            class="form-control @error('image') is-invalid @enderror"
+            accept=".jpg,.jpeg,.png,.webp"
+        >
+        @error('image')
+        <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+        <div class="form-text">
+            Allowed formats: jpg, jpeg, png, webp (max 4MB)
+        </div>
+        @if($post?->media)
+            <div class="mt-3">
+                <div class="small text-muted mb-2">
+                    Current image
+                </div>
+                <img
+                    src="{{ $post->media->url() }}"
+                    class="img-thumbnail"
+                    style="max-width:200px;"
+                >
+            </div>
+        @endif
+    </div>
 
     {{-- ========================= CATEGORIES ========================= --}}
     <div class="col-12">

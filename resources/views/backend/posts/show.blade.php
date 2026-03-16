@@ -4,6 +4,14 @@
 
         <x-backend.card>
 
+            @if($post->media)
+                <div class="mb-3">
+                    <img
+                        src="{{ $post->media->url() }}"
+                        class="img-fluid rounded">
+                </div>
+            @endif
+
             <div class="card-header d-flex align-items-center justify-content-between">
                 <div>
                     <i class="fas fa-file-lines me-1"></i>

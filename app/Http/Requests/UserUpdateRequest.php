@@ -107,6 +107,13 @@ class UserUpdateRequest extends FormRequest
                 'required_with:password',
                 'same:password',
             ],
+
+            'image' => [
+                'nullable',
+                'image',
+                'mimes:jpeg,jpg,png,webp',
+                'max:2048',
+            ],
         ];
     }
 }

@@ -96,6 +96,13 @@ class UserStoreRequest extends FormRequest
                 'required',
                 'same:password',
             ],
+
+            'image' => [
+                'nullable',
+                'image',
+                'mimes:jpeg,jpg,png,webp',
+                'max:2048',
+            ],
         ];
     }
 }

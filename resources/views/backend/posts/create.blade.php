@@ -7,7 +7,8 @@
             </div>
             <div class="card-body">
                 <form method="POST"
-                      action="{{ route('backend.posts.store') }}">
+                      action="{{ route('backend.posts.store') }}"
+                      enctype="multipart/form-data">
                     @csrf
                     @include('backend.posts.partials.form', [
                     'post' => null,

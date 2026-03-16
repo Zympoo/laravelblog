@@ -21,7 +21,6 @@ class UserSeeder extends Seeder
             'role_id' => 1,
             'email' => 'warre.neirinck@gmail.com',
             'email_verified_at' => Carbon::now(),
-            'photo_id' => 1,
             'password' => Hash::make('12345678'),
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),

@@ -113,13 +113,17 @@
                 <table class="table table-bordered table-striped mb-0">
                     <thead>
                     <tr>
+                        <th>Profile Picture</th>
+
                         <th><a class="text-decoration-none"
                                href="{{ $sortUrl('id') }}">ID{!! $sortIcon('id') !!}</a></th>
                         <th><a class="text-decoration-none"
                                href="{{ $sortUrl('name') }}">Name{!! $sortIcon('name') !!}</a></th>
                         <th><a class="text-decoration-none"
                                href="{{ $sortUrl('email') }}">Email{!! $sortIcon('email') !!}</a></th>
+
                         <th>Role</th>
+
                         <th><a class="text-decoration-none"
                                href="{{ $sortUrl('is_active') }}">Status{!! $sortIcon('is_active') !!}</a></th>
                         <th><a class="text-decoration-none"
@@ -130,6 +134,18 @@
                     <tbody>
                         @forelse($users as $user)
                             <tr>
+                                <td>
+                                    @if($user->media)
+                                        <img
+                                            src="{{ $user->media->url() }}"
+                                            alt="{{ $user->name }}"
+                                            class="img-thumbnail"
+                                            style="width: 60px; height: 60px; object-fit: cover;"
+                                        >
+                                    @else
+                                        -
+                                    @endif
+                                </td>
                                 <td>{{ $user->id }}</td>
                                 <td>{{ $user->name }}</td>
                                 <td>{{ $user->email }}</td>

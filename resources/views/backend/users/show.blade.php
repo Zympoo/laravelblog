@@ -1,6 +1,7 @@
 <x-backend.shell title="User details">
     <x-backend.page-header title="User details">
         <x-backend.card>
+
             <div class="card-header d-flex align-items-center justify-content-between">
                 <div>
                     <i class="fas fa-id-card me-1"></i>
@@ -22,6 +23,18 @@
                 {{-- Read-only overzicht, Bootstrap table --}}
                 <table class="table table-bordered mb-0">
                     <tbody>
+                    <tr>
+                        @if($user->media)
+                            <img
+                                src="{{ $user->media->url() }}"
+                                alt="{{ $user->name }}"
+                                class="img-thumbnail mb-1"
+                                style="width: 60px; height: 60px; object-fit: cover;"
+                            >
+                        @else
+                            -
+                        @endif
+                    </tr>
                     <tr>
                         <th style="width: 220px;">ID</th>
                         <td>{{ $user->id }}</td>

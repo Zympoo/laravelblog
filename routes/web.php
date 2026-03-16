@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\MediaController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
@@ -45,6 +46,8 @@ Route::middleware(['auth', 'verified'])
 
         Route::delete('posts/{id}/force-delete', [PostController::class, 'forceDelete'])
             ->name('posts.forceDelete');
+
+        Route::resource('media', MediaController::class);
     });
 
 require __DIR__.'/settings.php';

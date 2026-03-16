@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Services\MediaService;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
@@ -65,6 +67,11 @@ class Post extends Model
         return $this->belongsToMany(Category::class)->withTimestamps();
     }
 
+    public function media(): MorphOne
+    {
+        return $this->morphOne(Media::class, 'mediable');
+    }
+
     /**
      * Automatische slug-generatie bij create/update.
      *
@@ -79,9 +86,18 @@ class Post extends Model
                 $post->slug = Str::slug($post->title);
             }
         });
+
         static::updating(function (Post $post) {
             if ($post->isDirty('title') && blank($post->slug)) {
                 $post->slug = Str::slug($post->title);
+            }
+        });
+
+        static::forceDeleted(function ($post) {
+            if ($post->media) {
+                $mediaService = app(MediaService::class);
+
+                $mediaService->delete($post->media);
             }
         });
     }

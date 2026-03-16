@@ -12,7 +12,9 @@
                 - method="POST"
                 - @method('PATCH') als method spoofing
                 --}}
-                <form method="POST" action="{{ route('backend.users.update', $user) }}">
+                <form method="POST"
+                      action="{{ route('backend.users.update', $user) }}"
+                      enctype="multipart/form-data">
                     @csrf
                     @method('PATCH')
                     {{-- Hergebruik dezelfde feature partial --}}

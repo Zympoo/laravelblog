@@ -10,11 +10,18 @@ use App\Http\Requests\PostUpdateRequest;
 use App\Models\Category;
 use App\Models\Post;
 use App\Models\User;
+use App\Services\MediaService;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 
 class PostController extends Controller
 {
+    protected MediaService $mediaService;
+    public function __construct(MediaService $mediaService)
+    {
+        $this->mediaService = $mediaService;
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -87,6 +94,15 @@ class PostController extends Controller
             ]);
             // Many-to-many koppeling met categories
             $post->categories()->sync($data['categories'] ?? []);
+
+            if ($request->hasFile('image')) {
+                $this->mediaService->upload(
+                    $post,
+                    $request->file('image'),
+                    'posts'
+                );
+            }
+
             DB::commit();
 
             return redirect()
@@ -107,7 +123,7 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        $post->load(['user', 'categories']);
+        $post->load(['user', 'categories', 'media']);
 
         return view('backend.posts.show', [
             'post' => $post,
@@ -119,7 +135,7 @@ class PostController extends Controller
      */
     public function edit(Post $post)
     {
-        $post->load(['categories']);
+        $post->load(['categories', 'media']);
 
         $authors = User::query()
             ->orderBy('name')
@@ -157,6 +173,14 @@ class PostController extends Controller
             ]);
 
             $post->categories()->sync($data['categories'] ?? []);
+
+            if ($request->hasFile('image')) {
+                $this->mediaService->replace(
+                    $post,
+                    $request->file('image'),
+                    'posts'
+                );
+            }
 
             DB::commit();
 

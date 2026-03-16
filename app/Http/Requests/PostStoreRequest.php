@@ -7,7 +7,6 @@ namespace App\Http\Requests;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 
 class PostStoreRequest extends FormRequest
 {
@@ -55,15 +54,15 @@ class PostStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => ['nullable', 'integer', Rule::exists('users', 'id')],
-            'title' => ['required', 'string', 'min:3', 'max:255'],
-            'slug' => ['required', 'string', 'min:3', 'max:255', Rule::unique('posts', 'slug')],
-            'excerpt' => ['nullable', 'string', 'max:1000'],
-            'body' => ['required', 'string', 'min:10'],
+            'title' => ['required', 'string', 'max:255'],
+            'slug' => ['required', 'string', 'max:255', 'unique:posts,slug'],
+            'excerpt' => ['nullable', 'string'],
+            'body' => ['required', 'string'],
+            'user_id' => ['required', 'exists:users,id'],
             'is_published' => ['required', 'boolean'],
             'published_at' => ['nullable', 'date'],
-            'categories' => ['nullable', 'array'],
-            'categories.*' => ['integer', Rule::exists('categories', 'id')],
+            'categories' => ['array'],
+            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
         ];
     }
 }

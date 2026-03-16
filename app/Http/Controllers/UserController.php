@@ -9,12 +9,20 @@ use App\Http\Requests\UserStoreRequest;
 use App\Http\Requests\UserUpdateRequest;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\MediaService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Throwable;
 
 class UserController extends Controller
 {
+    protected $mediaService;
+
+    public function __construct(MediaService $mediaService)
+    {
+        $this->mediaService = $mediaService;
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -23,7 +31,7 @@ class UserController extends Controller
         $filters = $request->defaults();
 
         $users = User::query()
-            ->with('role')
+            ->with('role', 'media')
             ->search($filters['q'])
             ->roleFilter($filters['role'])
             ->statusFilter($filters['status'])
@@ -80,6 +88,14 @@ class UserController extends Controller
                 'password' => Hash::make($data['password']),
             ]);
 
+            if($request->hasFile('image')) {
+                $this->mediaService->upload(
+                    $user,
+                    $request->file('image'),
+                    'users'
+                );
+            }
+
             DB::commit();
 
             /**
@@ -119,7 +135,7 @@ class UserController extends Controller
          *
          * We eager load role om N+1 te vermijden als view role gebruikt.
          */
-        $user->load('role');
+        $user->load('role', 'media');
 
         return view('backend.users.show', [
             'user' => $user,
@@ -142,6 +158,8 @@ class UserController extends Controller
             ->orderBy('name')
             ->get(['id', 'name']);
 
+        $user->load('media');
+
         return view('backend.users.edit', [
             'user' => $user,
             'roles' => $roles,
@@ -161,6 +179,7 @@ class UserController extends Controller
          * - x-backend.flash toont de errors
          */
         $data = $request->validated();
+
         try {
             DB::beginTransaction();
             /**
@@ -186,6 +205,15 @@ class UserController extends Controller
                     'password' => Hash::make($data['password']),
                 ]);
             }
+
+            if($request->hasFile('image')) {
+                $this->mediaService->replace(
+                    $user,
+                    $request->file('image'),
+                    'users'
+                );
+            }
+
             DB::commit();
 
             /**
@@ -261,7 +289,9 @@ class UserController extends Controller
              * Dit gebruik je alleen op records die al soft deleted zijn.
              */
             $user = User::withTrashed()->findOrFail($id);
+
             $name = $user->name;
+
             $user->forceDelete();
 
             return redirect()
