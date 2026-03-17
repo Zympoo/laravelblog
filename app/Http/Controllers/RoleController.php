@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Http\Controllers;
 
 use App\Http\Requests\RoleIndexRequest;
@@ -18,6 +16,8 @@ class RoleController extends Controller
      */
     public function index(RoleIndexRequest $request)
     {
+        $this->authorize('viewAny', Role::class);
+
         $filters = $request->defaults();
 
         $roles = Role::query()
@@ -40,6 +40,8 @@ class RoleController extends Controller
      */
     public function create()
     {
+        $this->authorize('create', Role::class);
+
         return view('backend.roles.create');
     }
 
@@ -48,6 +50,8 @@ class RoleController extends Controller
      */
     public function store(RoleStoreRequest $request)
     {
+        $this->authorize('create', Role::class);
+
         $data = $request->validated();
 
         try {
@@ -62,8 +66,8 @@ class RoleController extends Controller
 
             return redirect()
                 ->route('backend.roles.index')
-                ->with('success', "Role '{$role->name}' successfully created.");
-        } catch (Throwable) {
+                ->with('success', "Role '{$role->name}' created successfully.");
+        } catch (Throwable $e) {
             DB::rollBack();
 
             return back()
@@ -77,6 +81,8 @@ class RoleController extends Controller
      */
     public function show(Role $role)
     {
+        $this->authorize('view', $role);
+
         $role->load(['users' => function ($query) {
             $query->orderBy('name');
         }]);
@@ -93,6 +99,8 @@ class RoleController extends Controller
      */
     public function edit(Role $role)
     {
+        $this->authorize('update', $role);
+
         return view('backend.roles.edit', [
             'role' => $role,
         ]);
@@ -103,6 +111,8 @@ class RoleController extends Controller
      */
     public function update(RoleUpdateRequest $request, Role $role)
     {
+        $this->authorize('update', $role);
+
         $data = $request->validated();
 
         try {
@@ -118,14 +128,13 @@ class RoleController extends Controller
             return redirect()
                 ->route('backend.roles.edit', $role)
                 ->with('success', "Role '{$role->name}' updated successfully.");
-        } catch (Throwable) {
+        } catch (Throwable $e) {
             DB::rollBack();
 
             return back()
                 ->withInput()
                 ->with('error', 'Role could not be updated. Please try again.');
         }
-
     }
 
     /**
@@ -133,13 +142,15 @@ class RoleController extends Controller
      */
     public function destroy(Role $role)
     {
+        $this->authorize('delete', $role);
+
         try {
             $role->delete();
 
             return redirect()
                 ->route('backend.roles.index')
                 ->with('success', "Role '{$role->name}' deleted successfully.");
-        } catch (Throwable) {
+        } catch (Throwable $e) {
             return back()
                 ->with('error', 'Role could not be deleted.');
         }
@@ -150,12 +161,14 @@ class RoleController extends Controller
         try {
             $role = Role::withTrashed()->findOrFail($id);
 
+            $this->authorize('restore', $role);
+
             $role->restore();
 
             return redirect()
                 ->route('backend.roles.index')
                 ->with('success', "Role '{$role->name}' restored successfully.");
-        } catch (Throwable) {
+        } catch (Throwable $e) {
             return back()
                 ->with('error', 'Role could not be restored.');
         }
@@ -165,6 +178,8 @@ class RoleController extends Controller
     {
         try {
             $role = Role::withTrashed()->findOrFail($id);
+
+            $this->authorize('forceDelete', $role);
 
             if ($role->users()->exists()) {
                 return back()->with('error', 'Role cannot be permanently deleted because users are still linked to it.');
@@ -176,7 +191,7 @@ class RoleController extends Controller
             return redirect()
                 ->route('backend.roles.index')
                 ->with('success', "Role '{$name}' permanently deleted.");
-        } catch (Throwable) {
+        } catch (Throwable $e) {
             return back()
                 ->with('error', 'Role could not be permanently deleted.');
         }

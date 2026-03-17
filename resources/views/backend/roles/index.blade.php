@@ -100,47 +100,64 @@
                                     <span class="badge bg-danger ms1">deleted</span>
                                 @endif
                             </td>
-                            <td>{{ \Illuminate\Support\Str::limit($role->description ?? '-', 80) }}</td>
+                            <td>{{ Str::limit($role->description ?? '-', 80) }}</td>
                             <td>{{ $role->users_count }}</td>
                             <td>{{ optional($role->created_at)->format('Y-md') }}</td>
                             <td class="text-end">
                                 <div class="d-inline-flex gap-1">
-                                    <a href="{{ route('backend.roles.show', $role) }}" class="btn btn-sm btn-outline-primary">
-                                        Show
-                                    </a>
-                                    @if(! $role->deleted_at)
-                                        <a
-                                            href="{{ route('backend.roles.edit', $role) }}" class="btn btn-sm btn-outline-secondary">
-                                            Edit
+                                    @can('view', $role)
+                                        <a href="{{ route('backend.roles.show', $role) }}"
+                                           class="btn btn-sm btn-outline-primary">
+                                            Show
                                         </a>
-                                        <form method="POST"
-                                              action="{{ route('backend.roles.destroy', $role) }}" class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-outline-danger"
-                                                    onclick="return confirm('Are you sure you want to delete this role?')">
-                                                Delete
-                                            </button>
-                                        </form>
+                                    @endcan
+                                    @if (! $role->deleted_at)
+                                        @can('update', $role)
+                                            <a href="{{ route('backend.roles.edit', $role) }}"
+                                               class="btn btn-sm btn-outline-secondary">
+                                                Edit
+                                            </a>
+                                        @endcan
+                                        @can('delete', $role)
+                                            <form method="POST"
+                                                  action="{{ route('backend.roles.destroy', $role) }}"
+                                                  class="d-inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-outline-danger"
+                                                        onclick="return confirm('Are you sure you want to delete this role?')">
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        @endcan
                                     @else
-                                        <form method="POST"
-                                              action="{{ route('backend.roles.restore', $role->id) }}" class="d-inline">
-                                            @csrf
-                                            @method('PATCH')
-                                            <button type="submit" class="btn btn-sm btn-success"
-                                                    onclick="return confirm('Restore this role?')">
-                                                Restore
-                                            </button>
-                                        </form>
-                                        <form method="POST"
-                                              action="{{ route('backend.roles.forceDelete', $role->id) }}" class="dinline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger"
-                                                    onclick="return confirm('Permanently delete this role? This cannot be undone.')">
-                                                Force delete
-                                            </button>
-                                        </form>
+                                        @can('restore', $role)
+                                            <form method="POST"
+                                                  action="{{ route('backend.roles.restore', $role->id) }}"
+                                                  class="d-inline">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-success"
+                                                        onclick="return confirm('Restore this role?')">
+                                                    Restore
+                                                </button>
+                                            </form>
+                                        @endcan
+                                        @can('forceDelete', $role)
+                                            <form method="POST"
+                                                  action="{{ route('backend.roles.forceDelete', $role->id) }}"
+                                                  class="d-inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-danger"
+                                                        onclick="return confirm('Permanently delete this role? This cannot be undone.')">
+                                                    Force delete
+                                                </button>
+                                            </form>
+                                        @endcan
                                     @endif
                                 </div>
                             </td>

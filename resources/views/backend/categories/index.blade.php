@@ -57,10 +57,12 @@
                         Clear
                     </a>
 
-                    <a href="{{ route('backend.categories.create') }}" class="btn btn-success ms-auto">
-                        <i class="fas fa-plus me-1"></i>
-                        New category
-                    </a>
+                    @can('create', \App\Models\Category::class)
+                        <a href="{{ route('backend.categories.create') }}" class="btn btn-success ms-auto">
+                            <i class="fas fa-plus me-1"></i>
+                            New category
+                        </a>
+                    @endcan
                 </div>
 
             </div>
@@ -161,65 +163,60 @@
 
                             <td class="text-end">
                                 <div class="d-inline-flex gap-1">
-
-                                    <a href="{{ route('backend.categories.show', $category) }}"
-                                       class="btn btn-sm btn-outline-primary">
-                                        Show
-                                    </a>
-
-                                    @if (! $category->deleted_at)
-
-                                        <a href="{{ route('backend.categories.edit', $category) }}"
-                                           class="btn btn-sm btn-outline-secondary">
-                                            Edit
+                                    @can('view', $category)
+                                        <a href="{{ route('backend.categories.show', $category) }}"
+                                           class="btn btn-sm btn-outline-primary">
+                                            Show
                                         </a>
-
-                                        <form method="POST"
-                                              action="{{ route('backend.categories.destroy', $category) }}"
-                                              class="d-inline">
-
-                                            @csrf
-                                            @method('DELETE')
-
-                                            <button type="submit"
-                                                    class="btn btn-sm btn-outline-danger"
-                                                    onclick="return confirm('Are you sure you want to delete this category?')">
-                                                Delete
-                                            </button>
-                                        </form>
-
+                                    @endcan
+                                    @if (! $category->deleted_at)
+                                        @can('update', $category)
+                                            <a href="{{ route('backend.categories.edit', $category) }}"
+                                               class="btn btn-sm btn-outline-secondary">
+                                                Edit
+                                            </a>
+                                        @endcan
+                                        @can('delete', $category)
+                                            <form method="POST"
+                                                  action="{{ route('backend.categories.destroy', $category) }}"
+                                                  class="d-inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-outline-danger"
+                                                        onclick="return confirm('Are you sure you want to delete this category?')">
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        @endcan
                                     @else
-
-                                        <form method="POST"
-                                              action="{{ route('backend.categories.restore', $category->id) }}"
-                                              class="d-inline">
-
-                                            @csrf
-                                            @method('PATCH')
-
-                                            <button type="submit"
-                                                    class="btn btn-sm btn-success"
-                                                    onclick="return confirm('Restore this category?')">
-                                                Restore
-                                            </button>
-                                        </form>
-
-                                        <form method="POST"
-                                              action="{{ route('backend.categories.forceDelete', $category->id) }}"
-                                              class="d-inline">
-
-                                            @csrf
-                                            @method('DELETE')
-
-                                            <button type="submit"
-                                                    class="btn btn-sm btn-danger"
-                                                    onclick="return confirm('Permanently delete this category? This cannot be undone.')">
-                                                Force delete
-                                            </button>
-                                        </form>
-
+                                        @can('restore', $category)
+                                            <form method="POST"
+                                                  action="{{ route('backend.categories.restore', $category->id) }}"
+                                                  class="d-inline">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-success"
+                                                        onclick="return confirm('Restore this category?')">
+                                                    Restore
+                                                </button>
+                                            </form>
+                                        @endcan
+                                        @can('forceDelete', $category)
+                                            <form method="POST"
+                                                  action="{{ route('backend.categories.forceDelete', $category->id) }}"
+                                                  class="d-inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-danger"
+                                                        onclick="return confirm('Permanently delete this category? This cannot be undone.')">
+                                                    Force delete
+                                                </button>
+                                            </form>
+                                        @endcan
                                     @endif
-
                                 </div>
                             </td>
                         </tr>

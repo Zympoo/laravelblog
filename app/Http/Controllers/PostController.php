@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Http\Controllers;
 
 use App\Http\Requests\PostIndexRequest;
@@ -17,6 +15,7 @@ use Throwable;
 class PostController extends Controller
 {
     protected MediaService $mediaService;
+
     public function __construct(MediaService $mediaService)
     {
         $this->mediaService = $mediaService;
@@ -27,20 +26,34 @@ class PostController extends Controller
      */
     public function index(PostIndexRequest $request)
     {
+        $this->authorize('viewAny', Post::class);
+
         $filters = $request->defaults();
-        $posts = Post::query()
-            ->with(['user', 'categories'])
+
+        $postsQuery = Post::query()
+            ->with(['user', 'categories', 'media'])
             ->search($filters['q'])
             ->authorFilter($filters['author'])
             ->categoryFilter($filters['category'])
             ->statusFilter($filters['status'])
             ->trashedFilter($filters['trashed'])
-            ->sortBySafe($filters['sort'], $filters['dir'])
+            ->sortBySafe($filters['sort'], $filters['dir']);
+
+        if (! $this->canManageAllPosts()) {
+            $postsQuery->where('user_id', auth()->id());
+        }
+
+        $posts = $postsQuery
             ->paginate($filters['per_page'])
             ->withQueryString();
-        $authors = User::query()
-            ->orderBy('name')
-            ->get(['id', 'name']);
+
+        $authorsQuery = User::query()->orderBy('name');
+
+        if (! $this->canManageAllPosts()) {
+            $authorsQuery->where('id', auth()->id());
+        }
+
+        $authors = $authorsQuery->get(['id', 'name']);
         $categories = Category::query()
             ->orderBy('name')
             ->get(['id', 'name']);
@@ -59,6 +72,8 @@ class PostController extends Controller
      */
     public function create()
     {
+        $this->authorize('create', Post::class);
+
         $authors = User::query()
             ->orderBy('name')
             ->get(['id', 'name']);
@@ -71,7 +86,6 @@ class PostController extends Controller
             'authors' => $authors,
             'categories' => $categories,
         ]);
-
     }
 
     /**
@@ -79,10 +93,12 @@ class PostController extends Controller
      */
     public function store(PostStoreRequest $request)
     {
+        $this->authorize('create', Post::class);
+
         $data = $request->validated();
+
         try {
             DB::beginTransaction();
-
             $post = Post::create([
                 'user_id' => $data['user_id'] ?? null,
                 'title' => $data['title'],
@@ -92,7 +108,7 @@ class PostController extends Controller
                 'is_published' => $data['is_published'],
                 'published_at' => $data['published_at'] ?? null,
             ]);
-            // Many-to-many koppeling met categories
+
             $post->categories()->sync($data['categories'] ?? []);
 
             if ($request->hasFile('image')) {
@@ -102,7 +118,6 @@ class PostController extends Controller
                     'posts'
                 );
             }
-
             DB::commit();
 
             return redirect()
@@ -115,7 +130,6 @@ class PostController extends Controller
                 ->withInput()
                 ->with('error', 'Post could not be created. Please try again.');
         }
-
     }
 
     /**
@@ -123,6 +137,8 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
+        $this->authorize('view', $post);
+
         $post->load(['user', 'categories', 'media']);
 
         return view('backend.posts.show', [
@@ -135,11 +151,17 @@ class PostController extends Controller
      */
     public function edit(Post $post)
     {
+        $this->authorize('update', $post);
+
         $post->load(['categories', 'media']);
 
-        $authors = User::query()
-            ->orderBy('name')
-            ->get(['id', 'name']);
+        $authorsQuery = User::query()->orderBy('name');
+
+        if (! $this->canManageAllPosts()) {
+            $authorsQuery->where('id', auth()->id());
+        }
+
+        $authors = $authorsQuery->get(['id', 'name']);
 
         $categories = Category::query()
             ->orderBy('name')
@@ -157,6 +179,8 @@ class PostController extends Controller
      */
     public function update(PostUpdateRequest $request, Post $post)
     {
+        $this->authorize('update', $post);
+
         $data = $request->validated();
 
         try {
@@ -191,6 +215,7 @@ class PostController extends Controller
             DB::rollBack();
 
             return back()
+                ->withInput()
                 ->with('error', 'Post could not be updated. Please try again.');
         }
     }
@@ -200,22 +225,29 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
+        $this->authorize('delete', $post);
+
         try {
             $post->delete();
 
             return redirect()
                 ->route('backend.posts.index')
-                ->with('success', 'Post "{$post->title}" deleted successfully.');
+                ->with('success', "Post '{$post->title}' deleted successfully.");
         } catch (Throwable $e) {
             return back()
-                ->with('error', 'Post could not be deleted. Please try again.');
+                ->with('error', 'Post could not be deleted.');
         }
     }
 
+    /**
+     * Restore a soft deleted post.
+     */
     public function restore(int $id)
     {
         try {
             $post = Post::withTrashed()->findOrFail($id);
+
+            $this->authorize('restore', $post);
 
             $post->restore();
 
@@ -224,25 +256,34 @@ class PostController extends Controller
                 ->with('success', "Post '{$post->title}' restored successfully.");
         } catch (Throwable $e) {
             return back()
-                ->with('error', 'Post could not be restored. Please try again.');
+                ->with('error', 'Post could not be restored.');
         }
     }
 
+    /**
+     * Permanently delete a post.
+     */
     public function forceDelete(int $id)
     {
         try {
             $post = Post::withTrashed()->findOrFail($id);
 
-            $title = $post->title;
+            $this->authorize('forceDelete', $post);
 
+            $title = $post->title;
             $post->forceDelete();
 
             return redirect()
                 ->route('backend.posts.index')
-                ->with('success', "Post '{$title}' permanently deleted successfully.");
+                ->with('success', "Post '{$title}' permanently deleted.");
         } catch (Throwable $e) {
             return back()
-                ->with('error', 'Post could not be permanently deleted. Please try again.');
+                ->with('error', 'Post could not be permanently deleted.');
         }
+    }
+
+    protected function canManageAllPosts(): bool
+    {
+        return in_array(auth()->user()?->role?->name, ['admin', 'editor'], true);
     }
 }

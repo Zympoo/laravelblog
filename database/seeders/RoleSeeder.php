@@ -20,13 +20,13 @@ class RoleSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'name' => 'author',
+                'name' => 'editor',
                 'description' => 'User who can create and manage own posts.',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
-                'name' => 'subscriber',
+                'name' => 'user',
                 'description' => 'Basic user with limited permissions.',
                 'created_at' => now(),
                 'updated_at' => now(),

@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserIndexRequest;
@@ -28,10 +26,12 @@ class UserController extends Controller
      */
     public function index(UserIndexRequest $request)
     {
+        $this->authorize('viewAny', User::class);
+
         $filters = $request->defaults();
 
         $users = User::query()
-            ->with('role', 'media')
+            ->with(['role', 'media'])
             ->search($filters['q'])
             ->roleFilter($filters['role'])
             ->statusFilter($filters['status'])
@@ -58,37 +58,38 @@ class UserController extends Controller
      */
     public function create()
     {
+        $this->authorize('create', User::class);
+
         $roles = Role::query()
             ->orderBy('name')
             ->get(['id', 'name']);
 
-        return view('backend.users.create', ['roles' => $roles]);
+        return view('backend.users.create', [
+            'roles' => $roles,
+        ]);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created user in storage.
      */
     public function store(UserStoreRequest $request)
     {
-        /**
-         * Als validatie faalt, komt code hier nooit:
-         * Laravel redirect automatisch terug met $errors en old().
-         */
+        $this->authorize('create', User::class);
         $data = $request->validated();
-
         try {
             DB::beginTransaction();
+            $data['password'] = Hash::make($data['password']);
 
-            $user = User::create([
-                'name' => $data['name'],
-                'email' => $data['email'],
-                'role_id' => $data['role_id'],
-                'is_active' => $data['is_active'],
-                'email_verified_at' => $data['email_verified_at'], // komt uit prepareForValidation
-                'password' => Hash::make($data['password']),
-            ]);
+            if (! empty($data['verified']) &&
+                empty($data['email_verified_at'])) {
+                $data['email_verified_at'] = now();
+            }
 
-            if($request->hasFile('image')) {
+            unset($data['verified']);
+
+            $user = User::create($data);
+
+            if ($request->hasFile('image')) {
                 $this->mediaService->upload(
                     $user,
                     $request->file('image'),
@@ -98,25 +99,12 @@ class UserController extends Controller
 
             DB::commit();
 
-            /**
-             * SUCCESS redirect:
-             * - naar index
-             * - flash 'success' => wordt getoond via x-backend.flash in shell
-             */
             return redirect()
                 ->route('backend.users.index')
                 ->with('success', "User '{$user->name}' created successfully.");
-
-        } catch (Throwable) {
-
+        } catch (Throwable $e) {
             DB::rollBack();
 
-            /**
-             * ERROR redirect (business error/DB error):
-             * - back() => terug naar formulier
-             * - withInput() => old() vult alle inputs opnieuw
-             * - with('error', ...) => flash alert in shell
-             */
             return back()
                 ->withInput()
                 ->with('error', 'User could not be created. Please try again.');
@@ -128,14 +116,9 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        /**
-         * Show is vaak nuttig in admin panels om read-only info te tonen:
-         * - id, created_at, updated_at
-         * - status, role, verified
-         *
-         * We eager load role om N+1 te vermijden als view role gebruikt.
-         */
-        $user->load('role', 'media');
+        $this->authorize('view', $user);
+
+        $user->load(['role', 'media']);
 
         return view('backend.users.show', [
             'user' => $user,
@@ -147,13 +130,8 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        /**
-         * Route model binding:
-         * - Laravel zoekt User op basis van {user} parameter
-         * - Bestaat hij niet, dan geeft Laravel automatisch 404
-         *
-         * We laden roles voor de dropdown in het form.
-         */
+        $this->authorize('update', $user);
+
         $roles = Role::query()
             ->orderBy('name')
             ->get(['id', 'name']);
@@ -171,42 +149,31 @@ class UserController extends Controller
      */
     public function update(UserUpdateRequest $request, User $user)
     {
-        /**
-         * validated() bevat enkel toegelaten velden.
-         * Als validatie faalt:
-         * - Laravel redirect automatisch terug
-         * - $errors en old() worden gevuld
-         * - x-backend.flash toont de errors
-         */
+        $this->authorize('update', $user);
+
         $data = $request->validated();
 
         try {
             DB::beginTransaction();
-            /**
-             * We updaten expliciet de velden die bij user horen.
-             * Dit is duidelijker dan $user->update($data) omdat:
-             * - password conditioneel is
-             * - we willen exact zien wat aangepast wordt
-             */
-            $user->update([
-                'name' => $data['name'],
-                'email' => $data['email'],
-                'role_id' => $data['role_id'],
-                'is_active' => $data['is_active'],
-                'email_verified_at' => $data['email_verified_at'],
-            ]);
-            /**
-             * Password is optioneel bij update.
-             * Alleen als het ingevuld is (niet null en niet leeg),
-             * updaten we het password.
-             */
-            if (! empty($data['password'])) {
-                $user->update([
-                    'password' => Hash::make($data['password']),
-                ]);
+
+            if (! empty($data['verified']) && empty($data['email_verified_at'])) {
+                $data['email_verified_at'] = $user->email_verified_at ??
+                    now();
             }
 
-            if($request->hasFile('image')) {
+            if (array_key_exists('verified', $data)) {
+                unset($data['verified']);
+            }
+
+            if (! empty($data['password'])) {
+                $data['password'] = Hash::make($data['password']);
+            } else {
+                unset($data['password']);
+            }
+
+            $user->update($data);
+
+            if ($request->hasFile('image')) {
                 $this->mediaService->replace(
                     $user,
                     $request->file('image'),
@@ -216,24 +183,12 @@ class UserController extends Controller
 
             DB::commit();
 
-            /**
-             * Success: terug naar edit of naar index.
-             * Best practice in admin is vaak: terug naar edit zodat je verder
-            kan aanpassen.
-             * Jij kan dit later aanpassen naar index als je dat liever hebt.
-             */
             return redirect()
-                ->route('backend.users.edit', $user)
+                ->route('backend.users.index')
                 ->with('success', "User '{$user->name}' updated successfully.");
-        } catch (Throwable) {
+        } catch (Throwable $e) {
             DB::rollBack();
 
-            /**
-             * Business/DB error:
-             * - terug naar form
-             * - behoud input
-             * - toon error flash
-             */
             return back()
                 ->withInput()
                 ->with('error', 'User could not be updated. Please try again.');
@@ -245,18 +200,15 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
+        $this->authorize('delete', $user);
+
         try {
-            /**
-             * Soft delete:
-             * de rij blijft bestaan,
-             * maar deleted_at wordt ingevuld.
-             */
             $user->delete();
 
             return redirect()
                 ->route('backend.users.index')
                 ->with('success', "User '{$user->name}' deleted successfully.");
-        } catch (Throwable) {
+        } catch (Throwable $e) {
             return back()
                 ->with('error', 'User could not be deleted.');
         }
@@ -265,17 +217,16 @@ class UserController extends Controller
     public function restore(int $id)
     {
         try {
-            /**
-             * withTrashed() zorgt ervoor dat ook soft deleted records
-             * opzoekbaar zijn.
-             */
             $user = User::withTrashed()->findOrFail($id);
+
+            $this->authorize('restore', $user);
+
             $user->restore();
 
             return redirect()
                 ->route('backend.users.index')
                 ->with('success', "User '{$user->name}' restored successfully.");
-        } catch (Throwable) {
+        } catch (Throwable $e) {
             return back()
                 ->with('error', 'User could not be restored.');
         }
@@ -284,20 +235,17 @@ class UserController extends Controller
     public function forceDelete(int $id)
     {
         try {
-            /**
-             * forceDelete() verwijdert de rij definitief uit de database.
-             * Dit gebruik je alleen op records die al soft deleted zijn.
-             */
             $user = User::withTrashed()->findOrFail($id);
 
-            $name = $user->name;
+            $this->authorize('forceDelete', $user);
 
+            $name = $user->name;
             $user->forceDelete();
 
             return redirect()
                 ->route('backend.users.index')
                 ->with('success', "User '{$name}' permanently deleted.");
-        } catch (Throwable) {
+        } catch (Throwable $e) {
             return back()
                 ->with('error', 'User could not be permanently deleted.');
         }

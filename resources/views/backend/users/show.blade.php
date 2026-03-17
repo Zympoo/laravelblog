@@ -8,15 +8,14 @@
                     {{ $user->name }}
                 </div>
                 <div class="d-flex gap-2">
-                    {{-- Naar edit --}}
-                    <a href="{{ route('backend.users.edit', $user) }}"
-                       class="btn btn-sm btn-outline-secondary">
-                        Edit
-                    </a>
-                    {{-- Terug naar index --}}
-                    <a href="{{ route('backend.users.index') }}" class="btn btn-sm btn-outline-secondary">
-                        Back
-                    </a>
+                    @can('update', $user)
+                        <a href="{{ route('backend.users.edit', $user) }}" class="btn btn-sm btn-outline-secondary">
+                            Edit
+                        </a>
+                    @endcan
+                        <a href="{{ route('backend.users.index') }}" class="btn btn-sm btn-outline-secondary">
+                            Back
+                        </a>
                 </div>
             </div>
             <div class="card-body">

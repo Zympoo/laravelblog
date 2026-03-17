@@ -8,10 +8,12 @@
                 </div>
                 <div class="d-flex gap-2">
                     @if(! $category->deleted_at)
-                        <a href="{{ route('backend.categories.edit',
-$category) }}" class="btn btn-sm btn-outline-secondary">
-                            Edit
-                        </a>
+                        @can('update', $category)
+                            <a href="{{ route('backend.categories.edit', $category) }}"
+                               class="btn btn-sm btn-outline-secondary">
+                                Edit
+                            </a>
+                        @endcan
                     @endif
                     <a href="{{ route('backend.categories.index') }}"
                        class="btn btn-sm btn-outline-secondary">

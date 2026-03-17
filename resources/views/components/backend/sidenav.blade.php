@@ -2,69 +2,68 @@
     <div class="sb-sidenav-menu">
         <div class="nav">
             <div class="sb-sidenav-menu-heading">Core</div>
-            <a class="nav-link {{ request()->routeIs('backend.dashboard') ?
-'active' : '' }}" href="{{ route('backend.dashboard') }}">
-                <div class="sb-nav-link-icon"><i class="fas fa-tachometeralt"></i></div>
-                Dashboard
-            </a>
-            <div class="sb-sidenav-menu-heading">Interface</div>
-            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"
-               data-bs-target="#collapseLayouts" aria-expanded="false" ariacontrols="collapseLayouts">
-                <div class="sb-nav-link-icon"><i class="fas facolumns"></i></div>
-                Layouts
-                <div class="sb-sidenav-collapse-arrow"><i class="fas faangle-down"></i></div>
-            </a>
-            <div class="collapse" id="collapseLayouts" arialabelledby="headingOne" data-bs-parent="#sidenavAccordion">
-                <nav class="sb-sidenav-menu-nested nav">
-                    <a class="nav-link" href="#">Static Navigation</a>
-                    <a class="nav-link" href="#">Light Sidenav</a>
-                </nav>
-            </div>
-            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"
-               data-bs-target="#collapsePages" aria-expanded="false" ariacontrols="collapsePages">
-                <div class="sb-nav-link-icon"><i class="fas fa-bookopen"></i></div>
-                Pages
-                <div class="sb-sidenav-collapse-arrow"><i class="fas faangle-down"></i></div>
-            </a>
-            <div class="collapse" id="collapsePages" arialabelledby="headingTwo" data-bs-parent="#sidenavAccordion">
-                <nav class="sb-sidenav-menu-nested nav accordion"
-                     id="sidenavAccordionPages">
-                    <a class="nav-link collapsed" href="#" data-bstoggle="collapse" data-bs-target="#pagesCollapseAuth" aria-expanded="false"
-                       aria-controls="pagesCollapseAuth">
-                        Authentication
-                        <div class="sb-sidenav-collapse-arrow"><i class="fas
-fa-angle-down"></i></div>
-                    </a>
-                    <div class="collapse" id="pagesCollapseAuth" arialabelledby="headingOne" data-bs-parent="#sidenavAccordionPages">
-                        <nav class="sb-sidenav-menu-nested nav">
-                            <a class="nav-link" href="#">Login</a>
-                            <a class="nav-link" href="#">Register</a>
-                            <a class="nav-link" href="#">Forgot Password</a>
-                        </nav>
+            @can('view-backend-dashboard')
+                <a class="nav-link {{ request()->routeIs('backend.dashboard') ? 'active' : '' }}"
+                   href="{{ route('backend.dashboard') }}">
+                    <div class="sb-nav-link-icon">
+                        <i class="fas fa-tachometer-alt"></i>
                     </div>
-                    <a class="nav-link collapsed" href="#" data-bstoggle="collapse" data-bs-target="#pagesCollapseError" aria-expanded="false"
-                       aria-controls="pagesCollapseError">
-                        Error
-                        <div class="sb-sidenav-collapse-arrow"><i class="fas
-fa-angle-down"></i></div>
-                    </a>
-                    <div class="collapse" id="pagesCollapseError" arialabelledby="headingOne" data-bs-parent="#sidenavAccordionPages">
-                        <nav class="sb-sidenav-menu-nested nav">
-                            <a class="nav-link" href="#">401 Page</a>
-                            <a class="nav-link" href="#">404 Page</a>
-                            <a class="nav-link" href="#">500 Page</a>
-                        </nav>
+                    Dashboard
+                </a>
+            @endcan
+            <div class="sb-sidenav-menu-heading">Content</div>
+            @can('viewAny', \App\Models\Post::class)
+                <a class="nav-link {{ request()->routeIs('backend.posts.*') ? 'active' : '' }}"
+                   href="{{ route('backend.posts.index') }}">
+                    <div class="sb-nav-link-icon">
+                        <i class="fas fa-thumbtack"></i>
                     </div>
-                </nav>
-            </div>
-            <div class="sb-sidenav-menu-heading">Addons</div>
-            <a class="nav-link" href="#">
-                <div class="sb-nav-link-icon"><i class="fas fa-chartarea"></i></div>
-                Charts
-            </a>
-            <a class="nav-link" href="#">
-                <div class="sb-nav-link-icon"><i class="fas fatable"></i></div>
-                Tables
+                    Posts
+                </a>
+            @endcan
+            @can('viewAny', \App\Models\Category::class)
+                <a class="nav-link {{ request()->routeIs('backend.categories.*') ? 'active' : '' }}"
+                   href="{{ route('backend.categories.index') }}">
+                    <div class="sb-nav-link-icon">
+                        <i class="fas fa-folder"></i>
+                    </div>
+                    Categories
+                </a>
+            @endcan
+            @can('viewAny', \App\Models\Media::class)
+                <a class="nav-link {{ request()->routeIs('backend.media.*') ? 'active' : '' }}"
+                   href="{{ route('backend.media.index') }}">
+                    <div class="sb-nav-link-icon">
+                        <i class="fas fa-image"></i>
+                    </div>
+                    Media
+                </a>
+            @endcan
+            <div class="sb-sidenav-menu-heading">Administration</div>
+            @can('viewAny', \App\Models\User::class)
+                <a class="nav-link {{ request()->routeIs('backend.users.*') ? 'active' : '' }}"
+                   href="{{ route('backend.users.index') }}">
+                    <div class="sb-nav-link-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    Users
+                </a>
+            @endcan
+            @can('viewAny', \App\Models\Role::class)
+                <a class="nav-link {{ request()->routeIs('backend.roles.*') ? 'active' : '' }}"
+                   href="{{ route('backend.roles.index') }}">
+                    <div class="sb-nav-link-icon">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    Roles
+                </a>
+            @endcan
+            <div class="sb-sidenav-menu-heading">Website</div>
+            <a class="nav-link" href="{{ route('home') }}">
+                <div class="sb-nav-link-icon">
+                    <i class="fas fa-globe"></i>
+                </div>
+                Naar website
             </a>
         </div>
     </div>
