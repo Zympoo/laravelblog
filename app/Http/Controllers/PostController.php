@@ -31,7 +31,7 @@ class PostController extends Controller
         $filters = $request->defaults();
 
         $postsQuery = Post::query()
-            ->with(['user', 'categories', 'media'])
+            ->with(['user', 'creator', 'editor', 'categories', 'media'])
             ->search($filters['q'])
             ->authorFilter($filters['author'])
             ->categoryFilter($filters['category'])
@@ -139,7 +139,7 @@ class PostController extends Controller
     {
         $this->authorize('view', $post);
 
-        $post->load(['user', 'categories', 'media']);
+        $post->load(['user', 'creator', 'editor', 'categories', 'media']);
 
         return view('backend.posts.show', [
             'post' => $post,

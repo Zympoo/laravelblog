@@ -1,40 +1,44 @@
 <x-backend.shell title="Post details">
-
     <x-backend.page-header title="Post details">
 
         <x-backend.card>
 
-            @if($post->media)
-                <div class="mb-3">
-                    <img
-                        src="{{ $post->media->url() }}"
-                        class="img-fluid rounded">
-                </div>
-            @endif
-
             <div class="card-header d-flex align-items-center justify-content-between">
+
+                {{-- Image --}}
+                @if($post->media)
+                    <div class="mb-3">
+                        <img src="{{ $post->media->url() }}"
+                             class="img-fluid rounded">
+                    </div>
+                @endif
+
+                {{-- Title --}}
                 <div>
                     <i class="fas fa-file-lines me-1"></i>
                     {{ $post->title }}
                 </div>
 
+                {{-- Actions --}}
                 <div class="d-flex gap-2">
                     @if(! $post->deleted_at)
                         @can('update', $post)
-                            <a href="{{ route('backend.posts.edit', $post) }}" class="btn btn-sm btn-outline-secondary">
+                            <a href="{{ route('backend.posts.edit', $post) }}"
+                               class="btn btn-sm btn-outline-secondary">
                                 Edit
                             </a>
                         @endcan
                     @endif
-                    <a href="{{ route('backend.posts.index') }}" class="btn btn-sm btnoutline-secondary">
+
+                    <a href="{{ route('backend.posts.index') }}"
+                       class="btn btn-sm btn-outline-secondary">
                         Back
                     </a>
                 </div>
+
             </div>
 
-
             <div class="card-body">
-
                 <table class="table table-bordered mb-4">
                     <tbody>
 
@@ -59,6 +63,16 @@
                     </tr>
 
                     <tr>
+                        <th>Created by</th>
+                        <td>{{ $post->creator?->name ?? '-' }}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Last updated by</th>
+                        <td>{{ $post->editor?->name ?? '-' }}</td>
+                    </tr>
+
+                    <tr>
                         <th>Status</th>
                         <td>
                             @if($post->is_published)
@@ -71,9 +85,7 @@
 
                     <tr>
                         <th>Published at</th>
-                        <td>
-                            {{ optional($post->published_at)->format('Y-m-d H:i') ?? '-' }}
-                        </td>
+                        <td>{{ optional($post->published_at)->format('Y-m-d H:i') ?? '-' }}</td>
                     </tr>
 
                     <tr>
@@ -101,32 +113,24 @@
 
                     <tr>
                         <th>Created at</th>
-                        <td>
-                            {{ optional($post->created_at)->format('Y-m-d H:i') }}
-                        </td>
+                        <td>{{ optional($post->created_at)->format('Y-m-d H:i') }}</td>
                     </tr>
 
                     <tr>
                         <th>Updated at</th>
-                        <td>
-                            {{ optional($post->updated_at)->format('Y-m-d H:i') }}
-                        </td>
+                        <td>{{ optional($post->updated_at)->format('Y-m-d H:i') }}</td>
                     </tr>
 
                     <tr>
                         <th>Deleted at</th>
-                        <td>
-                            {{ optional($post->deleted_at)->format('Y-m-d H:i') ?? '-' }}
-                        </td>
+                        <td>{{ optional($post->deleted_at)->format('Y-m-d H:i') ?? '-' }}</td>
                     </tr>
 
                     </tbody>
                 </table>
-
             </div>
 
         </x-backend.card>
 
     </x-backend.page-header>
-
 </x-backend.shell>

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\PostController;
@@ -10,7 +11,9 @@ use Illuminate\Support\Facades\Route;
 
 // frontend routes
 Route::get('/', fn () => view('frontend.home'))->name('home');
-Route::get('/contact', fn () => view('frontend.contact'))->name('frontend.contact');
+
+Route::get('/contact', [ContactController::class, 'create'])->name('frontend.contact');
+Route::post('/contact', [ContactController::class, 'store'])->name('frontend.contact.store');
 // backend dashboard
 Route::get('/backend', function () {
     Gate::authorize('view-backend-dashboard');
