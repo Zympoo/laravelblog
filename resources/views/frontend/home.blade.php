@@ -1,14 +1,14 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0,
-minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>laravel</title>
-</head>
-<body>
-<h1>Hello Laravel</h1>
-</body>
-</html>
+<x-frontend.shell
+    title="Home"
+    meta-description="Ontdek de nieuwste artikels en categorieën op onze blog."
+>
+    <x-frontend.home.welcome-slider :featured-posts="$featuredPosts" />
+    <x-frontend.home.latest-news-marquee :latest-posts="$latestPosts" />
+    <x-frontend.home.main-content
+        :latest-posts="$latestPosts"
+        :category-posts="$categoryPosts"
+        :categories="$categories"
+    />
+    <x-frontend.home.video-post-area :video-posts="$videoPosts" />
+    <x-frontend.home.editorial-area :editorial-posts="$editorialPosts" />
+</x-frontend.shell>

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Http\Requests\RoleIndexRequest;
@@ -67,7 +69,7 @@ class RoleController extends Controller
             return redirect()
                 ->route('backend.roles.index')
                 ->with('success', "Role '{$role->name}' created successfully.");
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             DB::rollBack();
 
             return back()
@@ -128,7 +130,7 @@ class RoleController extends Controller
             return redirect()
                 ->route('backend.roles.edit', $role)
                 ->with('success', "Role '{$role->name}' updated successfully.");
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             DB::rollBack();
 
             return back()
@@ -150,7 +152,7 @@ class RoleController extends Controller
             return redirect()
                 ->route('backend.roles.index')
                 ->with('success', "Role '{$role->name}' deleted successfully.");
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             return back()
                 ->with('error', 'Role could not be deleted.');
         }
@@ -168,7 +170,7 @@ class RoleController extends Controller
             return redirect()
                 ->route('backend.roles.index')
                 ->with('success', "Role '{$role->name}' restored successfully.");
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             return back()
                 ->with('error', 'Role could not be restored.');
         }
@@ -191,7 +193,7 @@ class RoleController extends Controller
             return redirect()
                 ->route('backend.roles.index')
                 ->with('success', "Role '{$name}' permanently deleted.");
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             return back()
                 ->with('error', 'Role could not be permanently deleted.');
         }

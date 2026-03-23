@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserIndexRequest;
@@ -14,12 +16,7 @@ use Throwable;
 
 class UserController extends Controller
 {
-    protected $mediaService;
-
-    public function __construct(MediaService $mediaService)
-    {
-        $this->mediaService = $mediaService;
-    }
+    public function __construct(protected MediaService $mediaService) {}
 
     /**
      * Display a listing of the resource.
@@ -102,7 +99,7 @@ class UserController extends Controller
             return redirect()
                 ->route('backend.users.index')
                 ->with('success', "User '{$user->name}' created successfully.");
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             DB::rollBack();
 
             return back()
@@ -186,7 +183,7 @@ class UserController extends Controller
             return redirect()
                 ->route('backend.users.index')
                 ->with('success', "User '{$user->name}' updated successfully.");
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             DB::rollBack();
 
             return back()
@@ -208,7 +205,7 @@ class UserController extends Controller
             return redirect()
                 ->route('backend.users.index')
                 ->with('success', "User '{$user->name}' deleted successfully.");
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             return back()
                 ->with('error', 'User could not be deleted.');
         }
@@ -226,7 +223,7 @@ class UserController extends Controller
             return redirect()
                 ->route('backend.users.index')
                 ->with('success', "User '{$user->name}' restored successfully.");
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             return back()
                 ->with('error', 'User could not be restored.');
         }
@@ -245,7 +242,7 @@ class UserController extends Controller
             return redirect()
                 ->route('backend.users.index')
                 ->with('success', "User '{$name}' permanently deleted.");
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             return back()
                 ->with('error', 'User could not be permanently deleted.');
         }

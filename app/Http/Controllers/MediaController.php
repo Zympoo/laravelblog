@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Http\Requests\MediaIndexRequest;
@@ -96,7 +98,7 @@ class MediaController extends Controller
             return redirect()
                 ->route('backend.media.index')
                 ->with('success', "Media '{$media->file_name}' created successfully.");
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             DB::rollBack();
 
             return back()
@@ -195,7 +197,7 @@ class MediaController extends Controller
             return redirect()
                 ->route('backend.media.edit', $media)
                 ->with('success', "Media '{$media->file_name}' updated successfully.");
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             DB::rollBack();
 
             return back()
@@ -212,7 +214,7 @@ class MediaController extends Controller
             return redirect()
                 ->route('backend.media.index')
                 ->with('success', "Media '{$media->file_name}' deleted successfully.");
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             return back()
                 ->with('error', 'Media could not be deleted.');
         }
@@ -228,7 +230,7 @@ class MediaController extends Controller
             return redirect()
                 ->route('backend.media.index')
                 ->with('success', "Media '{$media->file_name}' restored successfully.");
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             return back()
                 ->with('error', 'Media could not be restored.');
         }
@@ -250,7 +252,7 @@ class MediaController extends Controller
             return redirect()
                 ->route('backend.media.index')
                 ->with('success', "Media '{$name}' permanently deleted.");
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             return back()
                 ->with('error', 'Media could not be permanently deleted.');
         }

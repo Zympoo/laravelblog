@@ -1,21 +1,26 @@
 <?php
 
-use App\Http\Controllers\ContactController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 
 // frontend routes
-Route::get('/', fn () => view('frontend.home'))->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('/contact', [ContactController::class, 'create'])->name('frontend.contact');
 Route::post('/contact', [ContactController::class, 'store'])->name('frontend.contact.store');
+
+Route::view('/about', 'frontend.about')->name('about');
 // backend dashboard
-Route::get('/backend', function () {
+Route::get('/backend', function (): Factory|View {
     Gate::authorize('view-backend-dashboard');
 
     return view('backend.dashboard');
