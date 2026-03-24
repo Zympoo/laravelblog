@@ -80,6 +80,10 @@
                             @else
                                 <span class="badge bg-secondary">draft</span>
                             @endif
+
+                            @if($post->is_featured)
+                                <span class="badge bg-success">featured</span>
+                            @endif
                         </td>
                     </tr>
 

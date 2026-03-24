@@ -8,6 +8,7 @@ use App\Events\PostCreated;
 use App\Events\PostUpdated;
 use App\Models\Post;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class PostService
@@ -24,6 +25,7 @@ class PostService
                 'excerpt' => $data['excerpt'] ?? null,
                 'body' => $data['body'],
                 'is_published' => $data['is_published'],
+                'is_featured' => $data['is_featured'],
                 'published_at' => $data['published_at'] ?? null,
             ]);
 
@@ -53,6 +55,7 @@ class PostService
                 'excerpt' => $data['excerpt'] ?? null,
                 'body' => $data['body'],
                 'is_published' => $data['is_published'],
+                'is_featured' => $data['is_featured'],
                 'published_at' => $data['published_at'] ?? null,
             ]);
 
@@ -70,5 +73,16 @@ class PostService
 
             return $post;
         });
+    }
+
+    public function getLatestPosts(int $limit = 8): Collection
+    {
+        return Post::query()
+            ->with(['user', 'categories', 'media'])
+            ->where('is_published', true)
+            ->whereNotNull('published_at')
+            ->latest('published_at')
+            ->take($limit)
+            ->get();
     }
 }

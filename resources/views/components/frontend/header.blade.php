@@ -91,9 +91,6 @@
                                     <li class="nav-item {{ request()->routeIs('home') ? 'active' : '' }}">
                                         <a class="nav-link" href="{{ route('home') }}">Home</a>
                                     </li>
-                                    <li class="nav-item {{ request()->routeIs('about') ? 'active' : '' }}">
-                                        <a class="nav-link" href="{{ route('about') }}">About</a>
-                                    </li>
                                     <li class="nav-item {{ request()->routeIs('contact') ? 'active' : '' }}">
                                         <a class="nav-link" href="{{ route('frontend.contact') }}">Contact</a>
                                     </li>

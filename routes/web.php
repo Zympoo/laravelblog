@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Frontend\PostController as FrontendPostController;
+use App\Http\Controllers\Frontend\CategoryController as FrontendCategoryController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\Frontend\HomeController;
@@ -18,7 +20,11 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/contact', [ContactController::class, 'create'])->name('frontend.contact');
 Route::post('/contact', [ContactController::class, 'store'])->name('frontend.contact.store');
 
-Route::view('/about', 'frontend.about')->name('about');
+Route::get('/posts', [FrontendPostController::class, 'index'])->name('frontend.posts.index');
+Route::get('/posts/{post:slug}', [FrontendPostController::class, 'show'])->name('frontend.posts.show');
+
+Route::get('/categories/{category:slug}', [FrontendCategoryController::class, 'show'])->name('frontend.categories.show');
+
 // backend dashboard
 Route::get('/backend', function (): Factory|View {
     Gate::authorize('view-backend-dashboard');

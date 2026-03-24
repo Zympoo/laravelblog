@@ -9,3 +9,40 @@
     ---------------------------------------------------------- */
 
     /* ============ PLACE YOUR CUSTOM CSS HERE ============ */
+
+    .latest-news-marquee-area {
+        overflow: hidden;
+        background: #000000;
+        border: 1px solid #ddd;
+        padding: 10px 0;
+    }
+
+    .simple-marquee-container {
+        display: flex;
+        align-items: center;
+    }
+
+    .marquee {
+        display: flex;
+        width: 100%;
+    }
+
+    .marquee-content-items {
+        display: flex;
+        gap: 50px; /* afstand tussen items */
+        animation: marquee 50s linear infinite; /* langer = langzamer scrollen */
+    }
+
+    .marquee-content-items li {
+        flex: 0 0 auto;
+    }
+
+    /* Animatie: verplaats de lijst -50% naar links (door duplicatie) */
+    @keyframes marquee {
+        0% {
+            transform: translateX(0);
+        }
+        100% {
+            transform: translateX(-50%);
+        }
+    }

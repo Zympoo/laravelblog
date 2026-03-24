@@ -17,7 +17,7 @@
                     <div class="gazette-welcome-post">
                         <div class="gazette-post-tag">
                             @foreach($welcomePost->categories->take(1) as $category)
-                                <a href="#">{{ $category->name }}</a>
+                                <a href="{{ route('frontend.categories.show', $category) }}">{{ $category->name }}</a>
                             @endforeach
                         </div>
                         <h2 class="font-pt">{{ $welcomePost->title }}</h2>
@@ -51,7 +51,7 @@
                                         <div class="gazette-post-tag">
                                             @foreach($post->categories->take(1) as $category)
                                                 <a
-                                                    href="#">{{ $category->name }}</a>
+                                                    href="{{ route('frontend.categories.show', $category) }}">{{ $category->name }}</a>
                                             @endforeach
                                         </div>
                                         <h4>
@@ -81,7 +81,7 @@
                                     @endif
                                     <div class="todays-post-content">
                                         <h4>
-                                            <a href="#" class="font-pt mb2">{{ $post->title }}</a>
+                                            <a href="{{ route('frontend.posts.show', $post) }}" class="font-pt mb2">{{ $post->title }}</a>
                                         </h4>
                                         <span class="gazette-post-date mb-2 d-block">
                                             {{ optional($post->published_at)->format('F d, Y') }}
@@ -111,7 +111,7 @@
                                         <div class="gazette-post-tag">
                                             @foreach($post->categories->take(1) as $category)
                                                 <a
-                                                    href="#">{{ $category->name }}</a>
+                                                    href="{{ route('frontend.categories.show', $category) }}">{{ $category->name }}</a>
                                             @endforeach
                                         </div>
                                         <h5>
@@ -139,7 +139,7 @@
                         </div>
                         @forelse($categories as $category)
                             <div class="single-breaking-news-widget">
-                                <a href="#" class="fontpt">{{ $category->name }}</a>
+                                <a href="{{ route('frontend.categories.show', $category) }}" class="fontpt">{{ $category->name }}</a>
                                 <span>{{ $category->posts_count }} post(s)</span>
                             </div>
                         @empty

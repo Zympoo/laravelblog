@@ -101,7 +101,6 @@
         @enderror
     </div>
 
-
     {{-- ========================= PUBLISHED AT ========================= --}}
     <div class="col-12 col-md-3">
         <label class="form-label">Published at</label>
@@ -232,6 +231,25 @@
         @enderror
     </div>
 
+    {{-- ========================= FEATURED ========================= --}}
+    <div class="col-12 col-md-3">
+        <div class="form-check mt-4">
+            <input
+                type="checkbox"
+                name="is_featured"
+                id="is_featured"
+                value="1"
+                class="form-check-input @error('is_featured') is-invalid @enderror"
+                @checked(old('is_featured', $post?->is_featured ?? false))
+            >
+            <label class="form-check-label" for="is_featured">
+                Featured
+            </label>
+            @error('is_featured')
+            <div class="invalid-feedback d-block">{{ $message }}</div>
+            @enderror
+        </div>
+    </div>
 
     {{-- ========================= ACTIONS ========================= --}}
     <div class="col-12 d-flex gap-2 mt-2">

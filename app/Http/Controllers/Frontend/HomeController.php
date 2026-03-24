@@ -15,9 +15,24 @@ class HomeController extends Controller
             ->with(['user', 'categories', 'media'])
             ->where('is_published', true)
             ->whereNotNull('published_at')
+            ->where('is_featured', true)
             ->latest('published_at')
             ->take(4)
             ->get();
+
+        if ($featuredPosts->count() < 4) {
+            $needed = 4 - $featuredPosts->count();
+            $additionalPosts = Post::query()
+                ->with(['user', 'categories', 'media'])
+                ->where('is_published', true)
+                ->whereNotNull('published_at')
+                ->where('is_featured', false)
+                ->latest('published_at')
+                ->take($needed)
+                ->get();
+
+            $featuredPosts = $featuredPosts->concat($additionalPosts);
+        }
 
         $latestPosts = Post::query()
             ->with(['user', 'categories', 'media'])
