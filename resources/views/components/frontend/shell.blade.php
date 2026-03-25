@@ -1,6 +1,7 @@
 @props([
-'title' => config('app.name', 'Laravel Blog'),
-'metaDescription' => 'Welkom op onze blog',
+    'filters' => collect(),
+    'title' => config('app.name', 'Laravel Blog'),
+    'metaDescription' => 'Welkom op onze blog',
 ])
 
 <!DOCTYPE html>
@@ -19,7 +20,9 @@
     <link rel="stylesheet" href="{{ asset('frontend/gazette/css/responsive.css') }}">
 </head>
 <body>
-    <x-frontend.header />
+    <x-frontend.header
+        :filters="$filters"
+    />
 
     {{ $slot }}
 

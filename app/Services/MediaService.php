@@ -7,23 +7,37 @@ namespace App\Services;
 use App\Models\Media;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Intervention\Image\ImageManager;
 
 class MediaService
 {
-    //    Upload een nieuwe afbeelding en koppel deze aan een model
+    private ImageManager $imageManager;
+
+    public function __construct()
+    {
+        $this->imageManager = ImageManager::gd();
+    }
+
     public function upload($model, UploadedFile $file, ?string $directory = null): Media
     {
         $disk = 'public';
-        $path = $file->store($directory, $disk);
-        $filename = basename($path);
-        $directory = dirname($path) === '.' ? null : dirname($path);
+
+        // Lees afbeelding in
+        $image = $this->imageManager->read($file->getPathname());
+
+        $filename = uniqid().'.'.$file->getClientOriginalExtension();
+        $directory = $directory ? rtrim($directory, '/') : '';
+        $path = $directory ? "$directory/$filename" : $filename;
+
+        // Opslaan
+        Storage::disk($disk)->put($path, (string) $image->encode());
 
         $media = new Media([
             'disk' => $disk,
-            'directory' => $directory,
+            'directory' => $directory ?: null,
             'filename' => $filename,
             'mime_type' => $file->getClientMimeType(),
-            'size' => $file->getSize(),
+            'size' => Storage::disk($disk)->size($path),
         ]);
 
         $model->media()->save($media);
@@ -31,7 +45,6 @@ class MediaService
         return $media;
     }
 
-    //    Vervang een bestaande afbeelding
     public function replace($model, UploadedFile $file, ?string $directory = null): Media
     {
         if ($model->media) {
@@ -42,7 +55,6 @@ class MediaService
         return $this->upload($model, $file, $directory);
     }
 
-    //    Verwijder enkel de fysieke file
     public function deleteFile(Media $media): void
     {
         $path = $media->path();
@@ -52,7 +64,6 @@ class MediaService
         }
     }
 
-    //    Verwijder file en media record
     public function delete(Media $media): void
     {
         $this->deleteFile($media);

@@ -91,9 +91,6 @@
                                     <li class="nav-item {{ request()->routeIs('home') ? 'active' : '' }}">
                                         <a class="nav-link" href="{{ route('home') }}">Home</a>
                                     </li>
-                                    <li class="nav-item {{ request()->routeIs('about') ? 'active' : '' }}">
-                                        <a class="nav-link" href="{{ route('about') }}">About</a>
-                                    </li>
                                     <li class="nav-item {{ request()->routeIs('contact') ? 'active' : '' }}">
                                         <a class="nav-link" href="{{ route('frontend.contact') }}">Contact</a>
                                     </li>
@@ -106,9 +103,10 @@
                                     @endauth
                                 </ul>
                                 <div class="header-search-form mr-auto">
-                                    <form action="#" method="post">
+                                    <form method="GET" action="{{ route('frontend.posts.index') }}">
                                         <input type="search"
                                                placeholder="Input your keyword then press enter..." id="search"
+                                               value="{{ $filters['search'] ?? null }}"
                                                name="search">
                                     </form>
                                 </div>

@@ -7,7 +7,7 @@
 :: 4.0 Header Area CSS
     :: 4.1.0 Top Header Area CSS
     :: 4.2.0 Middle Header Area CSS
-    :: 4.3.0 Bottom Header Area CSS 
+    :: 4.3.0 Bottom Header Area CSS
 :: 5.0 Welocome Post Area CSS
 :: 6.0 News Marquee Area CSS
 :: 7.0 Sidebar Area CSS
@@ -540,7 +540,7 @@ img {
 }
 
 .header-search-form {
-    display: none;
+    display: block;
     -webkit-transition-duration: 500ms;
             transition-duration: 500ms;
 }
@@ -640,7 +640,7 @@ img {
 }
 
 .marquee-content-items li:nth-child(even) {
-    background-color: #1c1c1c;
+    background-color: #101010;
 }
 
 .marquee-content-items li a {

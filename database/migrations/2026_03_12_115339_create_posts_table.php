@@ -36,6 +36,7 @@ return new class extends Migration
             $table->longText('body');
             $table->boolean('is_published')->default(false);
             $table->timestamp('published_at')->nullable();
+            $table->boolean('is_featured')->default(false);
 
             $table->timestamps();
             $table->softDeletes();
