@@ -103,9 +103,10 @@
                                     @endauth
                                 </ul>
                                 <div class="header-search-form mr-auto">
-                                    <form action="#" method="post">
+                                    <form method="GET" action="{{ route('frontend.posts.index') }}">
                                         <input type="search"
                                                placeholder="Input your keyword then press enter..." id="search"
+                                               value="{{ $filters['search'] ?? null }}"
                                                name="search">
                                     </form>
                                 </div>

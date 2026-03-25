@@ -1,4 +1,5 @@
 <x-frontend.shell
+    :filters="$filters"
     title="Posts"
     meta-description="Ontdek de nieuwste artikels en categorieën op onze blog."
 >
@@ -42,7 +43,7 @@
         </div>
 
         <div class="mt-4">
-            {{ $posts->links() }}
+            {{ $posts->withQueryString()->links() }}
         </div>
     </div>
 </x-frontend.shell>

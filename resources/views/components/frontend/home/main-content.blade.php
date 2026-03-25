@@ -55,7 +55,7 @@
                                             @endforeach
                                         </div>
                                         <h4>
-                                            <a href="#" class="font-pt mb2">{{ $post->title }}</a>
+                                            <a href="{{ route('frontend.posts.show', $post) }}" class="font-pt mb2">{{ $post->title }}</a>
                                         </h4>
                                         <span class="gazette-post-date mb-2 d-block">
                                             {{ optional($post->published_at)->format('F d, Y') }}
@@ -115,7 +115,7 @@
                                             @endforeach
                                         </div>
                                         <h5>
-                                            <a href="#" class="fontpt">{{ $post->title }}</a>
+                                            <a href="{{ route('frontend.posts.show', $post) }}" class="fontpt">{{ $post->title }}</a>
                                         </h5>
                                         <span class="gazette-post-date">
                                             {{ optional($post->published_at)->format('F d, Y') }}

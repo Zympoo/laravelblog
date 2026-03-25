@@ -540,7 +540,7 @@ img {
 }
 
 .header-search-form {
-    display: none;
+    display: block;
     -webkit-transition-duration: 500ms;
             transition-duration: 500ms;
 }
